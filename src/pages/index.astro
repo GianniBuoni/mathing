@@ -4,17 +4,20 @@ import Items from "@/components/Items.astro";
 import Heading from "@/components/Heading.astro";
 import FormCard from "@/components/react/FormCard";
 import FilledFormArray from "@/components/react/FilledFormArray";
+import Counter from "@/components/react/Counter";
 
 const title = "Homepage ✨";
 const description = "Change me";
 ---
 
 <MainLayout {title} {description}>
-  <Heading tagName="h1" size="h1">MAAAAAATTTHHHHH</Heading>
-  <!-- list of buttons to trigger a from to popup -->
-  <Items />
-  <!-- click item button; get form to show up-->
-  <FormCard client:load />
-  <!-- array of complete form cards -->
-  <FilledFormArray client:load />
+  <Heading tagName="h1" size="h1" classes="mb-10">MAAAAAATTTHHHHH</Heading>
+  <div class="lg:max-w-screen-xl flex gap-8">
+    <Items />
+    <div>
+      <Counter client:load />
+      <FormCard client:load />
+      <FilledFormArray client:load />
+    </div>
+  </div>
 </MainLayout>
