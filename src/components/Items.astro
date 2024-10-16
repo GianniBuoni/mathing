@@ -2,7 +2,7 @@
 import db from "@/db";
 import { items } from "@/db/schema";
 import Heading from "./Heading.astro";
-import Button from "./Button.astro";
+import Button from "@/components/react/Button";
 import { asc } from "drizzle-orm";
 
 const allItems = await db.select().from(items).orderBy(asc(items.item));

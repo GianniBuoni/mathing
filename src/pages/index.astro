@@ -3,6 +3,7 @@ import Button from "@/components/Button.astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 import Items from "@/components/Items.astro";
 import Heading from "@/components/Heading.astro";
+import FormCard from "@/components/react/FormCard";
 
 const title = "Homepage ✨";
 const description = "Change me";
@@ -11,4 +12,5 @@ const description = "Change me";
 <MainLayout {title} {description}>
   <Heading tagName="h1" size="h1">MAAAAAATTTHHHHH</Heading>
   <Items />
+  <FormCard item={{ id: 1, item: "Banana", price: 0.2 }} client:load />
 </MainLayout>
