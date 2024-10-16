@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 
 import Button from "./Button";
 import useFormStore from "@/stores/useFormStore";
-import type { Payee } from "@/stores/useFormStore";
+import type { FilledForm, Payee } from "@/stores/useFormStore";
 
 type PayObject = {
   quantity: number;
@@ -10,14 +10,31 @@ type PayObject = {
 };
 
 const FormCard = () => {
-  const { register, handleSubmit } = useForm<PayObject>();
-  const { isFormActive, reset, activeFormItem } = useFormStore();
+  // to do: break up what you can to helper functions
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PayObject>();
+  const { isFormActive, filledForms, reset, activeFormItem, modFilledForms } =
+    useFormStore();
 
   const onSubmit = (data: PayObject) => {
-    console.log({
-      finalPrice: (data.quantity * activeFormItem.price).toFixed(2),
+    // to do: add zod validation
+    const finalPrice = activeFormItem.price * data.quantity;
+    console.log(finalPrice);
+    const payeePrice = data.payee === "half" ? finalPrice / 2 : finalPrice;
+    console.log(payeePrice);
+
+    const newArrayData: FilledForm = {
+      item: activeFormItem,
+      quantity: data.quantity,
       payee: data.payee,
-    });
+      payeePrice: payeePrice,
+    };
+
+    const newArray = [...filledForms, newArrayData];
+    modFilledForms(newArray);
     reset();
   };
   return (
@@ -38,6 +55,8 @@ const FormCard = () => {
             {...register("quantity", { min: 1 })}
           />
         </label>
+        {/* to do: add error handling and validation for payee field
+        choose should not be a valid input if no selection is made */}
         <select
           id="payee"
           defaultValue="choose"
@@ -50,9 +69,14 @@ const FormCard = () => {
           <option value="paul">Paul</option>
           <option value="half">Halvsies</option>
         </select>
-        <Button type="submit" color="primary">
-          Submit
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" color="primary">
+            Submit
+          </Button>
+          <Button onClick={() => reset()} color="secondary">
+            Cancel
+          </Button>
+        </div>
       </form>
     )
   );

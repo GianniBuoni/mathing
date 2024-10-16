@@ -3,6 +3,7 @@ import MainLayout from "@/layouts/MainLayout.astro";
 import Items from "@/components/Items.astro";
 import Heading from "@/components/Heading.astro";
 import FormCard from "@/components/react/FormCard";
+import FilledFormArray from "@/components/react/FilledFormArray";
 
 const title = "Homepage ✨";
 const description = "Change me";
@@ -15,4 +16,5 @@ const description = "Change me";
   <!-- click item button; get form to show up-->
   <FormCard client:load />
   <!-- array of complete form cards -->
+  <FilledFormArray client:load />
 </MainLayout>

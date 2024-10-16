@@ -15,6 +15,7 @@ export type FilledForm = {
   item: Item;
   quantity: number;
   payee: Payee;
+  payeePrice: number;
 };
 
 export type Payee = "jon" | "paul" | "half";
