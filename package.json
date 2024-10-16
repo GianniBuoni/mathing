@@ -1,0 +1,39 @@
+{
+  "name": "astro-starter-template",
+  "type": "module",
+  "version": "0.0.1",
+  "browserslist": [
+    "defaults"
+  ],
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/rss": "^4.0.7",
+    "@astrojs/sitemap": "^3.1.6",
+    "@astrojs/tailwind": "^5.1.0",
+    "@fontsource-variable/chivo": "^5.0.15",
+    "@libsql/client": "^0.14.0",
+    "astro": "^4.14.2",
+    "astro-icon": "^1.1.1",
+    "drizzle-orm": "^0.35.0",
+    "postcss": "^8.4.41",
+    "postcss-preset-env": "^10.0.2",
+    "react-hook-form": "^7.53.0",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "daisyui": "^4.12.10",
+    "drizzle-kit": "^0.26.1",
+    "prettier": "^3.3.3",
+    "prettier-plugin-astro": "^0.14.1"
+  },
+  "packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
+}

@@ -1,0 +1,37 @@
+services:
+  dev:
+    build:
+      context: .
+      target: dev
+    container_name: astro-starter-dev
+    profiles: [dev]
+    networks:
+      - astro
+    ports:
+      - 8080:4321
+    volumes:
+      - ".:/app"
+  test:
+    build:
+      context: .
+      target: runtime
+    container_name: astro-starter-test
+    profiles: [test]
+    networks:
+      - astro
+    volumes:
+      - ./dist:/usr/local/apache2/htdocs/
+    ports:
+      - 4321:4321
+  runtime:
+    build:
+      context: .
+      target: runtime
+    container_name: astro-starter-runtime
+    profiles: [runtime]
+    networks:
+      - astro
+networks:
+  astro:
+    driver: bridge
+    name: astro

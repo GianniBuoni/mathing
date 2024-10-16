@@ -1,0 +1,22 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+const tagSizes = {
+  h1: "text-5xl",
+  h2: "text-3xl",
+  h3: "text-xl",
+};
+
+interface Props extends HTMLAttributes<keyof typeof tagSizes> {
+  tagName: keyof typeof tagSizes;
+  size: keyof typeof tagSizes;
+  classes?: string;
+}
+
+const { tagName, size, classes, ...rest } = Astro.props;
+const Tag = tagName;
+---
+
+<Tag class:list={["mb-3 font-bold", tagSizes[size], classes]} {...rest}>
+  <slot />
+</Tag>
