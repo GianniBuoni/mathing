@@ -2,7 +2,7 @@
 import db from "@/db";
 import { items } from "@/db/schema";
 import Heading from "./Heading.astro";
-import Button from "@/components/react/Button";
+import ItemButton from "@/components/react/ItemButton";
 import { asc } from "drizzle-orm";
 
 const allItems = await db.select().from(items).orderBy(asc(items.item));
@@ -11,12 +11,6 @@ const allItems = await db.select().from(items).orderBy(asc(items.item));
 <div class="rounded-box border-black">
   <Heading tagName="h2" size="h2">All Items</Heading>
   <ul class="flex flex-wrap gap-3">
-    {
-      allItems.map((item) => (
-        <Button>
-          {item.item} : {item.price}
-        </Button>
-      ))
-    }
+    {allItems.map((item) => <ItemButton {item} client:load />)}
   </ul>
 </div>

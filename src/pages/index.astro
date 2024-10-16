@@ -1,5 +1,4 @@
 ---
-import Button from "@/components/Button.astro";
 import MainLayout from "@/layouts/MainLayout.astro";
 import Items from "@/components/Items.astro";
 import Heading from "@/components/Heading.astro";
@@ -11,6 +10,9 @@ const description = "Change me";
 
 <MainLayout {title} {description}>
   <Heading tagName="h1" size="h1">MAAAAAATTTHHHHH</Heading>
+  <!-- list of buttons to trigger a from to popup -->
   <Items />
-  <FormCard item={{ id: 1, item: "Banana", price: 0.2 }} client:load />
+  <!-- click item button; get form to show up-->
+  <FormCard client:load />
+  <!-- array of complete form cards -->
 </MainLayout>
