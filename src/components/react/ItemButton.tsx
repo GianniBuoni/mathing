@@ -18,7 +18,7 @@ const ItemButton = ({ item }: Props) => {
       disabled={isFormActive}
       onClick={() => handleClick()}
     >
-      {item.item}: ${item.price}
+      {item.item}
     </Button>
   );
 };

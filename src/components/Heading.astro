@@ -17,6 +17,6 @@ const { tagName, size, classes, ...rest } = Astro.props;
 const Tag = tagName;
 ---
 
-<Tag class:list={["mb-3 font-display font-bold tracking-wide", tagSizes[size], classes]} {...rest}>
+<Tag class:list={["mb-3 font-display font-bold tracking-wide text-white", tagSizes[size], classes]} {...rest}>
   <slot />
 </Tag>

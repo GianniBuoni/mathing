@@ -15,4 +15,20 @@ export default {
     },
   },
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        dark: {
+          ...require("daisyui/src/theming/themes")["dark"],
+          primary: "cba6f7", //mauve
+          secondary: "f38ba8", //rose
+          neutral: "313244",
+          "base-content": "f5e0dc", //rosewater
+          "base-100": "1e1e2e",
+          "base-200": "181825",
+          "base-300": "11111b",
+        },
+      },
+    ],
+  },
 };

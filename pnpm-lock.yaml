@@ -29,6 +29,9 @@ importers:
       '@fontsource/dela-gothic-one':
         specifier: ^5.1.0
         version: 5.1.0
+      '@hookform/resolvers':
+        specifier: ^3.9.0
+        version: 3.9.0(react-hook-form@7.53.0(react@18.3.1))
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -958,6 +961,11 @@ packages:
 
   '@fontsource/dela-gothic-one@5.1.0':
     resolution: {integrity: sha512-ZEgmKAHvB5N1oY36B2wMnQo4PonHlxkJ/bHu7qNrP9+h9VijiwbqVYww+rOglcsHxIjVhDOyp8Uj+vTFtyYUFQ==}
+
+  '@hookform/resolvers@3.9.0':
+    resolution: {integrity: sha512-bU0Gr4EepJ/EQsH/IwEzYLsT/PEj5C0ynLQ4m+GSHS+xKH4TfSelhluTgOaoc4kA5s7eCsQbM4wvZLzELmWzUg==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
 
   '@iconify/tools@4.0.5':
     resolution: {integrity: sha512-l8KoA1lxlN/FFjlMd3vjfD7BtcX/QnFWtlBapILMlJSBgM5zhDYak/ldw/LkKG3258q/0YmXa48sO/QpxX7ptg==}
@@ -4298,6 +4306,10 @@ snapshots:
   '@fontsource-variable/chivo@5.0.15': {}
 
   '@fontsource/dela-gothic-one@5.1.0': {}
+
+  '@hookform/resolvers@3.9.0(react-hook-form@7.53.0(react@18.3.1))':
+    dependencies:
+      react-hook-form: 7.53.0(react@18.3.1)
 
   '@iconify/tools@4.0.5':
     dependencies:
