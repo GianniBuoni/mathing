@@ -7,11 +7,13 @@ import sitemap from "@astrojs/sitemap";
 // Defined Config
 import tailwind from "@astrojs/tailwind";
 
+import react from "@astrojs/react";
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://astro-blog.app",
   prefetch: {
-    prefetchAll: true,
+    prefetchAll: true
   },
-  integrations: [icon(), sitemap(), tailwind()],
+  integrations: [icon(), sitemap(), tailwind(), react()]
 });

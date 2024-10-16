@@ -1,12 +1,14 @@
 ---
 import Button from "@/components/Button.astro";
 import MainLayout from "@/layouts/MainLayout.astro";
+import Items from "@/components/Items.astro";
+import Heading from "@/components/Heading.astro";
 
 const title = "Homepage ✨";
 const description = "Change me";
 ---
 
 <MainLayout {title} {description}>
-  <h1 class="text-3xl font-bold pb-3">Index</h1>
-  <Button color="neutral" hover="primary">👋 Click Me!</Button>
+  <Heading tagName="h1" size="h1">MAAAAAATTTHHHHH</Heading>
+  <Items />
 </MainLayout>
