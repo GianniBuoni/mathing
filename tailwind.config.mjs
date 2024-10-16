@@ -6,7 +6,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        display: ["Dela Gothic One", ...defaultTheme.fontFamily.sans],
         sans: ["Chivo Variable", ...defaultTheme.fontFamily.sans],
+      },
+      borderWidth: {
+        1: ["0.5px"],
       },
     },
   },

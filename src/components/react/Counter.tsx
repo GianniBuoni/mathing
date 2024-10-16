@@ -14,10 +14,10 @@ const Counter = () => {
     0,
   );
   return (
-    <div className="flex gap-5">
-      <p>Jon: ${allJon.toFixed(2)}</p>
-      <p>Paul: ${allPaul.toFixed(2)}</p>
-      <p>Full ${(allPaul + allJon).toFixed(2)}</p>
+    <div className="flex gap-5 font-display tracking-wider text-white">
+      <p>JON ${allJon.toFixed(2)}</p>
+      <p>PAUL ${allPaul.toFixed(2)}</p>
+      <p>ALL ${(allPaul + allJon).toFixed(2)}</p>
     </div>
   );
 };

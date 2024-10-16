@@ -8,7 +8,9 @@ import { asc } from "drizzle-orm";
 const allItems = await db.select().from(items).orderBy(asc(items.item));
 ---
 
-<div class="rounded-box border-black max-w-lg">
+<div
+  class="rounded-box bordered border-base-content border-1 shadow-2xl max-w-xl p-10"
+>
   <Heading tagName="h2" size="h2">All Items</Heading>
   <ul class="flex flex-wrap gap-3">
     {allItems.map((item) => <ItemButton {item} client:load />)}

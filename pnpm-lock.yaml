@@ -26,6 +26,9 @@ importers:
       '@fontsource-variable/chivo':
         specifier: ^5.0.15
         version: 5.0.15
+      '@fontsource/dela-gothic-one':
+        specifier: ^5.1.0
+        version: 5.1.0
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -952,6 +955,9 @@ packages:
 
   '@fontsource-variable/chivo@5.0.15':
     resolution: {integrity: sha512-C5K9VmjkutX5YzMKB9/NYEfPf9JTME4/bQ1lsWNwG3bQnHU96YxcqXPQ5B9liuAEPwDuUVbgJTTpgENuh92srA==}
+
+  '@fontsource/dela-gothic-one@5.1.0':
+    resolution: {integrity: sha512-ZEgmKAHvB5N1oY36B2wMnQo4PonHlxkJ/bHu7qNrP9+h9VijiwbqVYww+rOglcsHxIjVhDOyp8Uj+vTFtyYUFQ==}
 
   '@iconify/tools@4.0.5':
     resolution: {integrity: sha512-l8KoA1lxlN/FFjlMd3vjfD7BtcX/QnFWtlBapILMlJSBgM5zhDYak/ldw/LkKG3258q/0YmXa48sO/QpxX7ptg==}
@@ -4290,6 +4296,8 @@ snapshots:
     optional: true
 
   '@fontsource-variable/chivo@5.0.15': {}
+
+  '@fontsource/dela-gothic-one@5.1.0': {}
 
   '@iconify/tools@4.0.5':
     dependencies:

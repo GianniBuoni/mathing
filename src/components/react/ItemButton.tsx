@@ -13,7 +13,11 @@ const ItemButton = ({ item }: Props) => {
     passItemProp(item);
   };
   return (
-    <Button disabled={isFormActive} onClick={() => handleClick()}>
+    <Button
+      color="primary"
+      disabled={isFormActive}
+      onClick={() => handleClick()}
+    >
       {item.item}: ${item.price}
     </Button>
   );

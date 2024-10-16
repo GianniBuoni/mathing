@@ -11,10 +11,9 @@ const description = "Change me";
 ---
 
 <MainLayout {title} {description}>
-  <Heading tagName="h1" size="h1" classes="mb-10">MAAAAAATTTHHHHH</Heading>
-  <div class="lg:max-w-screen-xl flex gap-8">
+  <div class="lg:max-w-screen-xl flex gap-8 m-auto">
     <Items />
-    <div>
+    <div class="w-full">
       <Counter client:load />
       <FormCard client:load />
       <FilledFormArray client:load />

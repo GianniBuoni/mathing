@@ -19,6 +19,7 @@
     "@astrojs/sitemap": "^3.1.6",
     "@astrojs/tailwind": "^5.1.0",
     "@fontsource-variable/chivo": "^5.0.15",
+    "@fontsource/dela-gothic-one": "^5.1.0",
     "@libsql/client": "^0.14.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
