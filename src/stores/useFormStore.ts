@@ -1,4 +1,5 @@
 import type { Item } from "@/db/schema";
+import { z } from "astro:content";
 import { create } from "zustand";
 
 export type FormArrayState = {
@@ -19,6 +20,13 @@ export type FilledForm = {
 };
 
 export type Payee = "jon" | "paul" | "half";
+
+export const PayObjectSchema = z.object({
+  quantity: z.coerce.number().min(1),
+  payee: z.enum(["jon", "paul", "half"]),
+});
+
+export type PayObject = z.infer<typeof PayObjectSchema>;
 
 const useFormStore = create<FormArrayState>((set) => ({
   isFormActive: false,

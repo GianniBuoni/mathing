@@ -1,30 +1,21 @@
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import Button from "./Button";
-import useFormStore from "@/stores/useFormStore";
-import type { FilledForm, Payee } from "@/stores/useFormStore";
-
-type PayObject = {
-  quantity: number;
-  payee: Payee;
-};
+import Button from "@/components/react/Button";
+import useFormStore, { PayObjectSchema } from "@/stores/useFormStore";
+import type { FilledForm, PayObject } from "@/stores/useFormStore";
 
 const FormCard = () => {
-  // to do: break up what you can to helper functions
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PayObject>();
-  const { isFormActive, filledForms, reset, activeFormItem, modFilledForms } =
+  const { register, handleSubmit } = useForm<PayObject>({
+    resolver: zodResolver(PayObjectSchema),
+  });
+
+  const { isFormActive, reset, activeFormItem, filledForms, modFilledForms } =
     useFormStore();
 
   const onSubmit = (data: PayObject) => {
-    // to do: add zod validation
     const finalPrice = activeFormItem.price * data.quantity;
-    console.log(finalPrice);
     const payeePrice = data.payee === "half" ? finalPrice / 2 : finalPrice;
-    console.log(payeePrice);
 
     const newArrayData: FilledForm = {
       item: activeFormItem,
@@ -37,6 +28,7 @@ const FormCard = () => {
     modFilledForms(newArray);
     reset();
   };
+
   return (
     isFormActive && (
       <form
@@ -46,21 +38,21 @@ const FormCard = () => {
         <p>
           {activeFormItem.item}: ${activeFormItem.price}
         </p>
-        <label className="flex gap-3">
+        <label className="flex gap-3 items-center">
           Quantity:
           <input
             type="number"
             size={1}
             defaultValue={1}
-            {...register("quantity", { min: 1 })}
+            className="rounded p-1"
+            {...register("quantity")}
           />
         </label>
-        {/* to do: add error handling and validation for payee field
-        choose should not be a valid input if no selection is made */}
         <select
           id="payee"
           defaultValue="choose"
-          {...register("payee", { required: true })}
+          className="rounded p-2"
+          {...register("payee")}
         >
           <option value="choose" disabled>
             Who Pays?
