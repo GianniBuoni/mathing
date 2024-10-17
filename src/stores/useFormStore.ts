@@ -1,4 +1,4 @@
-import type { Item } from "@/db/schema";
+import type { Item } from "@/db/types";
 import { z } from "astro:content";
 import { create } from "zustand";
 
