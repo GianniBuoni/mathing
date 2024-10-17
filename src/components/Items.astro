@@ -1,9 +1,15 @@
 ---
-import db from "@/db";
+// modules
+import { asc } from "drizzle-orm";
+
+// lib
+import db from "@/db"; 
 import { items } from "@/db/schema";
+
+// ui
 import Heading from "./Heading.astro";
 import ItemButton from "@/components/react/ItemButton";
-import { asc } from "drizzle-orm";
+import EditAddItem from "@/components/react/EditAddItem";
 
 const allItems = await db.select().from(items).orderBy(asc(items.item));
 ---
@@ -11,7 +17,13 @@ const allItems = await db.select().from(items).orderBy(asc(items.item));
 <div
   class="rounded-box bordered border-base-content border-1 shadow-2xl max-w-xl p-10"
 >
-  <Heading tagName="h2" size="h2">All Items</Heading>
+  <div class="flex items-center gap-3">
+    <Heading tagName="h2" size="h2">All Items</Heading>
+    <EditAddItem classes="mb-1" client:load />
+  </div>
+  <p class="mb-2">
+    <small>Click on an item to add it to the list or edit it!</small>
+  </p>
   <ul class="flex flex-wrap gap-3">
     {allItems.map((item) => <ItemButton {item} client:load />)}
   </ul>

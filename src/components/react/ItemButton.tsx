@@ -7,7 +7,8 @@ interface Props {
 }
 
 const ItemButton = ({ item }: Props) => {
-  const { isFormActive, activate, passItemProp } = useFormStore();
+  const { isFormActive, activate, passItemProp, activeFormItem } =
+    useFormStore();
   const handleClick = () => {
     activate();
     passItemProp(item);
@@ -15,7 +16,7 @@ const ItemButton = ({ item }: Props) => {
   return (
     <Button
       color="primary"
-      disabled={isFormActive}
+      disabled={isFormActive && item.id != activeFormItem.id}
       onClick={() => handleClick()}
     >
       {item.item}

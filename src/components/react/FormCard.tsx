@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/components/react/Button";
 import useFormStore, { PayObjectSchema } from "@/stores/useFormStore";
 import type { FilledForm, PayObject } from "@/stores/useFormStore";
+import SubmitCancelButtons from "./SubmitCancelButtons";
 
 const FormCard = () => {
   const { register, handleSubmit } = useForm<PayObject>({
@@ -61,14 +62,7 @@ const FormCard = () => {
           <option value="paul">Paul</option>
           <option value="half">Halvsies</option>
         </select>
-        <div className="flex gap-2">
-          <Button type="submit" color="primary">
-            Submit
-          </Button>
-          <Button onClick={() => reset()} color="secondary">
-            Cancel
-          </Button>
-        </div>
+        <SubmitCancelButtons />
       </form>
     )
   );

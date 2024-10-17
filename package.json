@@ -26,6 +26,7 @@
     "@types/react-dom": "^18.3.1",
     "astro": "^4.14.2",
     "astro-icon": "^1.1.1",
+    "axios": "^1.7.7",
     "drizzle-orm": "^0.35.0",
     "drizzle-zod": "^0.5.1",
     "postcss": "^8.4.41",
