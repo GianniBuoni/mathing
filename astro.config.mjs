@@ -6,8 +6,9 @@ import sitemap from "@astrojs/sitemap";
 
 // Defined Config
 import tailwind from "@astrojs/tailwind";
-
 import react from "@astrojs/react";
+
+import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,5 +16,9 @@ export default defineConfig({
   prefetch: {
     prefetchAll: true
   },
-  integrations: [icon(), sitemap(), tailwind(), react()]
+  integrations: [icon(), sitemap(), tailwind(), react()],
+  output: "server",
+  adapter: node({
+    mode: "standalone"
+  })
 });
