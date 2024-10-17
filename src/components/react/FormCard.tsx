@@ -32,11 +32,11 @@ const FormCard = () => {
   return (
     isFormActive && (
       <form
-        className="rounded-box bg-base-300 p-5 flex gap-10 my-5 w-fit items-center"
+        className="rounded-box bg-base-300 p-5 flex gap-10 w-fit items-center"
         onSubmit={handleSubmit(onSubmit)}
       >
         <p>
-          {activeFormItem.item}: ${activeFormItem.price}
+          {activeFormItem.item}: ${activeFormItem.price.toFixed(2)}
         </p>
         <label className="flex gap-3 items-center">
           Quantity:
