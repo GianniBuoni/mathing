@@ -8,6 +8,7 @@ export type FormArrayState = {
   isEditActive: boolean;
   activeFormItem: Item;
   filledForms: FilledForm[];
+  refetch: boolean;
   modFilledForms: (i: FilledForm[]) => void;
   activate: () => void;
   activateAdd: () => void;
@@ -38,6 +39,7 @@ const useFormStore = create<FormArrayState>((set) => ({
   isEditActive: false,
   activeFormItem: {} as Item,
   filledForms: [],
+  refetch: false,
   modFilledForms: (i: FilledForm[]) =>
     set(() => ({
       filledForms: i,
@@ -50,11 +52,12 @@ const useFormStore = create<FormArrayState>((set) => ({
       activeFormItem: i,
     })),
   reset: () =>
-    set(() => ({
+    set((store) => ({
       isFormActive: false,
       isAddActive: false,
       isEditActive: false,
       activeFormItem: {} as Item,
+      refetch: !store.refetch,
     })),
 }));
 

@@ -12,12 +12,12 @@ const description = "Change me";
 
 <MainLayout {title} {description}>
   <ModalBg client:load />
-  <div class="lg:max-w-screen-xl flex gap-8 m-auto">
+  <div class="lg:max-w-screen-xl grid grid-cols-7 gap-8 m-auto">
     <Items />
-    <div class="w-full">
-      <Counter client:load />
-      <FormCard client:load />
-      <FilledFormArray client:load />
+    <div class="w-full col-span-4">
+      <Counter client:idle />
+      <FormCard client:idle />
+      <FilledFormArray client:idle />
     </div>
   </div>
 </MainLayout>
