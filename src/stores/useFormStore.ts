@@ -58,6 +58,7 @@ const useFormStore = create<FormArrayState>((set) => ({
       isFormActive: false,
       isAddActive: false,
       isEditActive: false,
+      activeFormItem: {} as Item,
     })),
 }));
 

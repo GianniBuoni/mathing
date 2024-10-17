@@ -1,16 +1,17 @@
 ---
 import MainLayout from "@/layouts/MainLayout.astro";
 import Items from "@/components/Items.astro";
-import Heading from "@/components/Heading.astro";
 import FormCard from "@/components/react/FormCard";
 import FilledFormArray from "@/components/react/FilledFormArray";
 import Counter from "@/components/react/Counter";
+import ModalBg from "@/components/react/ModalBg";
 
 const title = "Homepage ✨";
 const description = "Change me";
 ---
 
 <MainLayout {title} {description}>
+  <ModalBg client:load />
   <div class="lg:max-w-screen-xl flex gap-8 m-auto">
     <Items />
     <div class="w-full">

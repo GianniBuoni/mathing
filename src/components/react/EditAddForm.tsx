@@ -14,13 +14,22 @@ const AddEditSchema = z.object({
   item: z.string(),
   price: z.coerce.number(),
 });
+
 type AddEditItem = z.infer<typeof AddEditSchema>;
 
-const EditAddForm = () => {
-  const { activeFormItem, isAddActive, isEditActive, reset } = useFormStore();
-  const { register, handleSubmit } = useForm<AddEditItem>({
+// for some reason, react-hook-form is having reading from store
+// passing the activeFormItem as a prop works for the inputs
+interface Props {
+  item?: AddEditItem;
+}
+
+const EditAddForm = ({ item }: Props) => {
+  const { activeFormItem, isAddActive, reset } = useFormStore();
+  const { register, handleSubmit, watch } = useForm<AddEditItem>({
     resolver: zodResolver(AddEditSchema),
   });
+
+  watch();
 
   const onSubmit = async (data: AddEditItem) => {
     try {
@@ -31,16 +40,14 @@ const EditAddForm = () => {
       if (isAddActive) {
         // add item
         await axios
-          .post(`${import.meta.env.BASE_URL}/api/addItem.json`, { data })
+          .post(`/api/addItem.json`, data)
           .then((res) => console.log(res))
           .catch((error) => console.log(error))
           .finally(() => reset());
       } else {
         // edit item
         await axios
-          .patch(`${import.meta.env.BASE_URL}/api/${activeFormItem.id}`, {
-            data,
-          })
+          .patch(`/api/${activeFormItem.id}.json`, data)
           .then((res) => console.log(res))
           .catch((error) => console.log(error))
           .finally(() => reset());
@@ -51,28 +58,28 @@ const EditAddForm = () => {
   };
   return (
     <form
-      className="rounded-box bg-base-300 p-5 flex gap-10 my-5 w-fit items-center"
+      className="rounded-box bg-neutral shadow-2xl p-5 flex gap-5 my-5 w-fit items-center"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <label>
-        Item Name:
-        <input
-          defaultValue={isEditActive ? activeFormItem.item : ""}
-          type="text"
-          {...register("item")}
-        />
-      </label>
-      <label>
-        Item Price:
-        <input
-          defaultValue={isEditActive ? activeFormItem.price : ""}
-          type="text"
-          {...register("price")}
-        />
-      </label>
+      <input
+        placeholder="Item name"
+        className={inputClasses}
+        type="text"
+        defaultValue={item?.item}
+        {...register("item", { required: true })}
+      />
+      <input
+        placeholder="Item Price"
+        className={inputClasses}
+        defaultValue={item?.price}
+        type="text"
+        {...register("price", { required: true })}
+      />
       <SubmitCancelButtons />
     </form>
   );
 };
+
+const inputClasses = "rounded p-1";
 
 export default EditAddForm;
