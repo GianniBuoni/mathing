@@ -2,36 +2,30 @@ services:
   dev:
     build:
       context: .
-      target: dev
-    container_name: astro-starter-dev
+      target: base
+    container_name: mathing-dev
     profiles: [dev]
     networks:
       - astro
     ports:
-      - 8080:4321
+      - 4321:4321
     volumes:
       - ".:/app"
-  test:
-    build:
-      context: .
-      target: runtime
-    container_name: astro-starter-test
-    profiles: [test]
-    networks:
-      - astro
-    volumes:
-      - ./dist:/usr/local/apache2/htdocs/
-    ports:
-      - 4321:4321
+    command: pnpm dev --host
   runtime:
     build:
       context: .
       target: runtime
-    container_name: astro-starter-runtime
+    container_name: mathing-runtime
+    restart: always
     profiles: [runtime]
+    ports:
+      - 5678:4321
     networks:
       - astro
+    volumes:
+      - "./data.db:/app/data.db"
 networks:
   astro:
-    driver: bridge
     name: astro
+    external: true

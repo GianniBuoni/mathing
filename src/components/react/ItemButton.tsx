@@ -1,6 +1,6 @@
 import useFormStore from "@/stores/useFormStore";
 import Button from "./Button";
-import type { Item } from "@/db/schema";
+import type { Item } from "@/db/types";
 
 interface Props {
   item: Item;
