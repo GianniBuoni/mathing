@@ -1,18 +1,19 @@
 import useFormStore from "@/stores/useFormStore";
 import EditAddForm from "@/components/react/EditAddForm";
+import DeleteButton from "@/components/react/DeleteButton";
 
 const ModalBg = () => {
-  const { activeFormItem, isAddActive, isEditActive, isDeleteActive } =
-    useFormStore();
+  const { activeFormItem, isAddActive, isEditActive } = useFormStore();
   return (
-    (isAddActive || isEditActive || isDeleteActive) && (
-      <div className="fixed top-0 left-0 w-screen h-screen bg-base-300 bg-opacity-95 flex justify-center items-center">
+    (isAddActive || isEditActive) && (
+      <div className="fixed top-0 left-0 w-screen h-screen bg-base-300 bg-opacity-95 flex flex-col justify-center items-center">
         <EditAddForm
           item={{
             item: activeFormItem.item,
             price: activeFormItem.price,
           }}
         />
+        {isEditActive && <DeleteButton />}
       </div>
     )
   );

@@ -6,14 +6,12 @@ export type FormArrayState = {
   isFormActive: boolean;
   isAddActive: boolean;
   isEditActive: boolean;
-  isDeleteActive: boolean;
   activeFormItem: Item;
   filledForms: FilledForm[];
   modFilledForms: (i: FilledForm[]) => void;
   activate: () => void;
   activateAdd: () => void;
   activateEdit: () => void;
-  activateDelete: () => void;
   passItemProp: (i: Item) => void;
   reset: () => void;
 };
@@ -38,7 +36,6 @@ const useFormStore = create<FormArrayState>((set) => ({
   isFormActive: false,
   isAddActive: false,
   isEditActive: false,
-  isDeleteActive: false,
   activeFormItem: {} as Item,
   filledForms: [],
   modFilledForms: (i: FilledForm[]) =>
@@ -48,7 +45,6 @@ const useFormStore = create<FormArrayState>((set) => ({
   activate: () => set(() => ({ isFormActive: true })),
   activateAdd: () => set(() => ({ isAddActive: true })),
   activateEdit: () => set(() => ({ isEditActive: true })),
-  activateDelete: () => set(() => ({ isDeleteActive: true })),
   passItemProp: (i: Item) =>
     set(() => ({
       activeFormItem: i,
