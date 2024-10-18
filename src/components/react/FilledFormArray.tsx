@@ -16,6 +16,7 @@ const FilledFormArray = () => {
           <motion.div
             className="rounded-box bg-neutral px-5 py-2 grid grid-cols-subgrid col-span-full items-center"
             key={`filledForm-${i}`}
+            layoutId={`filledForm-${i}`}
             variants={variants}
             initial="initial"
             animate="animate"
