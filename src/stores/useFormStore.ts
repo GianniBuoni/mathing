@@ -1,5 +1,5 @@
 import type { Item } from "@/db/types";
-import { z } from "astro:content";
+import { z } from "zod";
 import { create } from "zustand";
 
 export type FormArrayState = {

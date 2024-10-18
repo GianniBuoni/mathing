@@ -1,5 +1,5 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "astro:content";
+import { z } from "zod";
 
 import { items } from "@/db/schema";
 

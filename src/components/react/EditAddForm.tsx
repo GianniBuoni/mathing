@@ -1,16 +1,16 @@
 // modules
-import { z } from "astro:content";
+import { AnimatePresence, motion } from "framer-motion";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import type { Variants } from "framer-motion";
-import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import { z } from "zod";
 
 // lib
 import useFormStore from "@/stores/useFormStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // ui
-import SubmitCancelButtons from "./SubmitCancelButtons";
+import SubmitCancelButtons from "@/components/react/SubmitCancelButtons";
 
 const AddEditSchema = z.object({
   item: z.string(),
