@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, HTMLAttributes } from "react";
+import React from "react";
+import type { ButtonHTMLAttributes } from "react";
 
 export const buttonColors = {
   primary: "btn-primary",
@@ -20,16 +21,14 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   classes?: string;
 }
 
-const Button = ({
-  color = "neutral",
-  hover = "primary",
-  classes,
-  children,
-  ...rest
-}: Props) => {
+const Button = (
+  { color = "neutral", hover = "primary", classes, children, ...rest }: Props,
+  ref: React.LegacyRef<HTMLButtonElement>,
+) => {
   return (
     <button
       className={`btn btn-sm rounded ${buttonColors[color]} ${hoverColors[hover]} ${classes}`}
+      ref={ref}
       {...rest}
     >
       {children}
@@ -37,4 +36,4 @@ const Button = ({
   );
 };
 
-export default Button;
+export default React.forwardRef(Button);

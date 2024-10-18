@@ -8,7 +8,7 @@ const SubmitCancelButtons = () => {
       <Button type="submit" color="primary">
         Submit
       </Button>
-      <Button onClick={() => reset()} color="secondary">
+      <Button onClick={() => reset()} color="secondary" hover="secondary">
         Cancel
       </Button>
     </div>

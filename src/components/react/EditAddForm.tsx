@@ -1,6 +1,8 @@
 // modules
 import { z } from "astro:content";
 import { useForm } from "react-hook-form";
+import type { Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 // lib
@@ -57,29 +59,40 @@ const EditAddForm = ({ item }: Props) => {
     }
   };
   return (
-    <form
-      className="rounded-box bg-neutral shadow-2xl p-5 flex gap-5 my-5 w-fit items-center"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <input
-        placeholder="Item name"
-        className={inputClasses}
-        type="text"
-        defaultValue={item?.item}
-        {...register("item", { required: true })}
-      />
-      <input
-        placeholder="Item Price"
-        className={inputClasses}
-        defaultValue={item?.price}
-        type="text"
-        {...register("price", { required: true })}
-      />
-      <SubmitCancelButtons />
-    </form>
+    <AnimatePresence>
+      <motion.form
+        variants={variants}
+        initial={`initial`}
+        animate={`animate`}
+        layoutId="AddEditForm"
+        className="rounded-box bg-neutral shadow-2xl p-5 flex gap-5 my-5 w-fit items-center"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <input
+          placeholder="Item name"
+          className={inputClasses}
+          type="text"
+          defaultValue={item?.item}
+          {...register("item", { required: true })}
+        />
+        <input
+          placeholder="Item Price"
+          className={inputClasses}
+          defaultValue={item?.price}
+          type="text"
+          {...register("price", { required: true })}
+        />
+        <SubmitCancelButtons />
+      </motion.form>
+    </AnimatePresence>
   );
 };
 
 const inputClasses = "rounded p-1";
+
+const variants: Variants = {
+  initial: { opacity: 0, y: 300 },
+  animate: { opacity: 1, y: 0 },
+};
 
 export default EditAddForm;
