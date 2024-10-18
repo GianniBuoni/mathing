@@ -15,6 +15,7 @@ export type FormArrayState = {
   activateEdit: () => void;
   passItemProp: (i: Item) => void;
   reset: () => void;
+  doRefetch: () => void;
 };
 
 export type FilledForm = {
@@ -52,11 +53,14 @@ const useFormStore = create<FormArrayState>((set) => ({
       activeFormItem: i,
     })),
   reset: () =>
-    set((store) => ({
+    set(() => ({
       isFormActive: false,
       isAddActive: false,
       isEditActive: false,
       activeFormItem: {} as Item,
+    })),
+  doRefetch: () =>
+    set((store) => ({
       refetch: !store.refetch,
     })),
 }));

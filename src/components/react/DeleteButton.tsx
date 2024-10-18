@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 
 const DeleteButton = () => {
-  const { reset, activeFormItem } = useFormStore();
+  const { reset, doRefetch, activeFormItem } = useFormStore();
   const handleClick = () => {
     if (
       confirm(
@@ -14,6 +14,7 @@ const DeleteButton = () => {
     )
       axios
         .delete(`/api/${activeFormItem.id}.json`)
+        .then(() => doRefetch())
         .catch((e) => console.log(e))
         .finally(() => reset());
   };

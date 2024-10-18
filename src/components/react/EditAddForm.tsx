@@ -26,7 +26,7 @@ interface Props {
 }
 
 const EditAddForm = ({ item }: Props) => {
-  const { activeFormItem, isAddActive, reset } = useFormStore();
+  const { activeFormItem, isAddActive, reset, doRefetch } = useFormStore();
   const { register, handleSubmit, watch } = useForm<AddEditItem>({
     resolver: zodResolver(AddEditSchema),
   });
@@ -43,14 +43,14 @@ const EditAddForm = ({ item }: Props) => {
         // add item
         await axios
           .post(`/api/addItem.json`, data)
-          .then((res) => console.log(res))
+          .then(() => doRefetch())
           .catch((error) => console.log(error))
           .finally(() => reset());
       } else {
         // edit item
         await axios
           .patch(`/api/${activeFormItem.id}.json`, data)
-          .then((res) => console.log(res))
+          .then(() => doRefetch())
           .catch((error) => console.log(error))
           .finally(() => reset());
       }
