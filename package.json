@@ -13,6 +13,19 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@libsql/client": "^0.14.0",
+    "axios": "^1.7.7",
+    "drizzle-orm": "^0.35.0",
+    "drizzle-zod": "^0.5.1",
+    "framer-motion": "^11.11.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^3.6.2",
@@ -21,31 +34,18 @@
     "@astrojs/tailwind": "^5.1.0",
     "@fontsource-variable/chivo": "^5.0.15",
     "@fontsource/dela-gothic-one": "^5.1.0",
-    "@hookform/resolvers": "^3.9.0",
-    "@libsql/client": "^0.14.0",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "astro": "^4.14.2",
     "astro-icon": "^1.1.1",
-    "axios": "^1.7.7",
-    "drizzle-orm": "^0.35.0",
-    "drizzle-zod": "^0.5.1",
-    "framer-motion": "^11.11.9",
     "postcss": "^8.4.41",
-    "postcss-preset-env": "^10.0.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-hook-form": "^7.53.0",
-    "tailwindcss": "^3.4.10",
-    "typescript": "^5.5.4",
-    "zod": "^3.23.8",
-    "zustand": "^5.0.0"
-  },
-  "devDependencies": {
     "daisyui": "^4.12.10",
     "drizzle-kit": "^0.26.1",
+    "postcss-preset-env": "^10.0.2",
     "prettier": "^3.3.3",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
   },
   "packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
 }
