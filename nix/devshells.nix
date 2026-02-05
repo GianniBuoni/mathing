@@ -10,8 +10,9 @@
       ];
 
       packages = with pkgs; [
-        rust-analyzer
         grpc-tools
+        just
+        rust-analyzer
       ];
     };
   };
