@@ -3,5 +3,9 @@
 version = 4
 
 [[package]]
-name = "mathing"
+name = "mathing-client"
+version = "0.1.0"
+
+[[package]]
+name = "mathing-server"
 version = "0.1.0"

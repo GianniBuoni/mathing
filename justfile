@@ -1,6 +1,6 @@
 [default]
 run bin="server":
-  cargo run --bin "mathing"
+  cargo run -p "mathing-{{bin}}"
 
 test:
   cargo test
