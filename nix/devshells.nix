@@ -1,4 +1,6 @@
-{inputs, ...}: {
+{inputs, ...}: let
+  mkEnv = name: value: {inherit name value;};
+in {
   flake-file.inputs.devshell.url = "github:numtide/devshell";
   imports = [inputs.devshell.flakeModule];
 
@@ -13,6 +15,10 @@
         grpc-tools
         just
         rust-analyzer
+      ];
+
+      env = [
+        (mkEnv "SERVER_URI" "[::1]:50051")
       ];
     };
   };

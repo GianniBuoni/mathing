@@ -2,7 +2,9 @@ syntax = "proto3";
 package mathing;
 
 import "user_create.proto";
+import "user_delete.proto";
 
 service UserService {
   rpc UserCreate (UserCreateRequest) returns (UserCreateResponse);
+  rpc UserDelete (UserDeleteRequest) returns (UserDeleteResponse);
 }

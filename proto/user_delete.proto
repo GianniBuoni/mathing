@@ -1,0 +1,10 @@
+syntax = "proto3";
+package mathing;
+
+message UserDeleteRequest {
+  uint64 uuid = 1;
+}
+
+message UserDeleteResponse {
+  uint64 rows_affected = 1;
+}
