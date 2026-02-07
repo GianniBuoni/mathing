@@ -6,6 +6,7 @@ use crate::errors::{ClientError, ServerError};
 use crate::prelude::{mathing_proto::user_service_client::UserServiceClient, *};
 
 mod user_create;
+mod user_delete;
 
 #[derive(Default, Debug)]
 pub struct UserService {
@@ -32,7 +33,7 @@ impl UserService {
     pub async fn handle_command(&self, args: UserArgs) -> anyhow::Result<()> {
         match args.action {
             CrudAction::Create => self.handle_create(args).await?,
-            _ => unimplemented!(),
+            CrudAction::Delete => self.handle_delete(args).await?,
         }
         Ok(())
     }
