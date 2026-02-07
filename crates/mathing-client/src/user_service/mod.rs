@@ -5,13 +5,15 @@ use tonic::transport::{Channel, Endpoint};
 use crate::errors::{ClientError, ServerError};
 use crate::prelude::{mathing_proto::user_service_client::UserServiceClient, *};
 
+mod user_create;
+
 #[derive(Default, Debug)]
 pub struct UserService {
     endpoint: Arc<str>,
 }
 
 impl UserService {
-    /// Initializes UserService struct with any immutable configuration variables
+    /// Initializes a new UserService struct with any immutable configuration variables
     pub fn new() -> anyhow::Result<Self, ClientError> {
         let addr = std::env::var("SERVER_URI").map_err(|_| ClientError::EndpointMissing)?;
 
@@ -27,14 +29,11 @@ impl UserService {
             .await
             .map_err(|_| ServerError::Connection(self.endpoint.clone()).into())
     }
-    pub async fn handle_create(&self, args: UserArgs) -> anyhow::Result<()> {
-        let req = tonic::Request::new(mathing_proto::UserCreateRequest {
-            name: args.name.to_string(),
-        });
-        let res = self.connect().await?.user_create(req).await?;
-
-        println!("RESPONSE: {:?}", res);
-
+    pub async fn handle_command(&self, args: UserArgs) -> anyhow::Result<()> {
+        match args.action {
+            CrudAction::Create => self.handle_create(args).await?,
+            _ => unimplemented!(),
+        }
         Ok(())
     }
 }

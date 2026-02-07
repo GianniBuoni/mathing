@@ -9,7 +9,7 @@ async fn main() -> anyhow::Result<()> {
     match cli.service {
         Services::User(args) => {
             let user_service = UserService::new()?;
-            user_service.handle_create(args).await?;
+            user_service.handle_command(args).await?;
         }
     }
 
