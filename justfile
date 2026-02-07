@@ -1,6 +1,5 @@
-[default]
-run bin="server":
-  cargo run -p "mathing-{{bin}}"
+run bin="server" *args:
+  cargo run -p "mathing-{{bin}}" -- {{args}}
 
 test:
   cargo test
@@ -8,5 +7,6 @@ test:
 lint:
   cargo clippy -- -D warnings
 
+[default]
 build: test lint
-  cargo test
+  cargo build

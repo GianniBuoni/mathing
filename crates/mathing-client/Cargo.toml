@@ -8,6 +8,9 @@ tokio = {workspace = true}
 tonic = {workspace = true}
 tonic-prost = {workspace = true}
 prost = {workspace = true}
+clap = {version = "4.5.57", features = ["derive"]}
+anyhow = "1.0.101"
+thiserror = "2.0.18"
 
 [build-dependencies]
 tonic-prost-build = {workspace = true}
