@@ -12,13 +12,20 @@ in {
       ];
 
       packages = with pkgs; [
-        grpc-tools
+        # general shell utilities
         just
         rust-analyzer
+        # api tools
+        grpc-tools
+        # db utilities
+        postgresql
+        sqlx-cli
       ];
 
       env = [
         (mkEnv "SERVER_URI" "[::1]:50051")
+        (mkEnv "DATABASE_URL" "postgres://[::1]:5432/mathing")
+        (mkEnv "PGDATA" ".postgres")
       ];
     };
   };
