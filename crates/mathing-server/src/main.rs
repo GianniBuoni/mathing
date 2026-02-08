@@ -1,14 +1,14 @@
-use std::env;
-
-use mathing_server::*;
+use mathing_server::prelude::*;
 use tonic::transport::Server;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = env::var("SERVER_URI")?.parse()?;
+async fn main() -> anyhow::Result<()> {
+    // init server config
+    ServerConfig::try_init().await?;
     // init services
     let user_service = MathingUserService::default();
     //build server
+    let addr = ServerEndpoint::try_get()?;
     println!("Server starting on {}", addr);
     Server::builder()
         .add_service(UserServiceServer::new(user_service))
