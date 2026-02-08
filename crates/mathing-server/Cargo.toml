@@ -4,10 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = {workspace = true}
+prost = {workspace = true}
+sqlx = { version = "0.8.6", features = ["postgres","runtime-tokio"] }
+thiserror = {workspace = true}
 tokio = {workspace = true}
 tonic = {workspace = true}
 tonic-prost = {workspace = true}
-prost = {workspace = true}
 
 [build-dependencies]
 tonic-prost-build = {workspace = true}

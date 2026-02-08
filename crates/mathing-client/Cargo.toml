@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+clap = {version = "4.5.57", features = ["derive"]}
+anyhow = { workspace = true}
+prost = {workspace = true}
+thiserror =  {workspace = true}
 tokio = {workspace = true}
 tonic = {workspace = true}
 tonic-prost = {workspace = true}
-prost = {workspace = true}
-clap = {version = "4.5.57", features = ["derive"]}
-anyhow = "1.0.101"
-thiserror = "2.0.18"
 
 [build-dependencies]
 tonic-prost-build = {workspace = true}
