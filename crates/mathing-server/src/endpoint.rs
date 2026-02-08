@@ -11,10 +11,13 @@ pub struct ServerEndpoint(pub SocketAddr);
 impl ServerEndpoint {
     pub fn try_init() -> anyhow::Result<Self> {
         let key = "SERVER_URI";
+
+        info!("Parsing env variable: {key}.");
         let addr = std::env::var(key)
             .map_err(|_| ServerError::ConfigMissing(key.into()))?
             .parse()?;
 
+        info!("{key} found.");
         Ok(Self(addr))
     }
     pub fn try_get() -> Result<SocketAddr, ServerError> {

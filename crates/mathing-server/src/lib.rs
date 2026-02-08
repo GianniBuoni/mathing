@@ -10,10 +10,13 @@ pub mod prelude {
     pub use super::endpoint::prelude::*;
     pub use super::errors::prelude::*;
     pub use super::user_service::{MathingUserService, UserServiceServer};
+    // Logging macros
+    pub use log::{error, info, warn};
 }
 
 mod config;
 mod db_conn;
 mod endpoint;
 mod errors;
+pub mod logger;
 mod user_service;
