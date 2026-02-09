@@ -15,8 +15,7 @@ impl DBconn {
         info!("Parsing env variable: {key}.");
         let url = std::env::var(key).map_err(|_| ServerError::ConfigMissing(key.into()))?;
 
-        info!("{key} found.");
-        info!("Establishing conncection with database endpoint: {url}");
+        info!("Establishing connection with database endpoint: {url}");
         let pool = PgPool::connect(url.as_str())
             .await
             .map_err(|_| DbError::ConnectionError(url))?;

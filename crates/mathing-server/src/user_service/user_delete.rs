@@ -1,14 +1,17 @@
 use super::*;
 
 impl MathingUserService {
-    pub(super) fn handle_create(
+    pub(super) fn handle_delete(
         &self,
-        _req: Request<UserCreateRequest>,
+        req: Request<UserDeleteRequest>,
+    ) -> Result<Response<UserDeleteResponse>, Status> {
+        let req = req.into_inner();
+
+        info!("{:?}", req);
         // establish db connection
         // parse db response
-        // return new uuid of user
-    ) -> Result<Response<UserCreateResponse>, Status> {
-        let message = UserCreateResponse { uuid: 1 };
+        // return number of rows affected
+        let message = UserDeleteResponse { rows_affected: 1 };
         Ok(Response::new(message))
     }
 }

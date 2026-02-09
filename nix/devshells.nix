@@ -26,6 +26,7 @@ in {
         (mkEnv "SERVER_URI" "[::1]:50051")
         (mkEnv "DATABASE_URL" "postgres://[::1]:5432/mathing")
         (mkEnv "PGDATA" ".postgres")
+        (mkEnv "LOG_LEVEL" "info")
       ];
     };
   };

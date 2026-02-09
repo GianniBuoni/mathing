@@ -17,7 +17,6 @@ impl ServerEndpoint {
             .map_err(|_| ServerError::ConfigMissing(key.into()))?
             .parse()?;
 
-        info!("{key} found.");
         Ok(Self(addr))
     }
     pub fn try_get() -> Result<SocketAddr, ServerError> {
