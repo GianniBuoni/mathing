@@ -10,3 +10,6 @@ lint:
 [default]
 build: test lint
   cargo build
+
+start_db:
+  pg_ctl start -l .postgres/logfile -o --unix_socket_directories=$PWD/.postgres
