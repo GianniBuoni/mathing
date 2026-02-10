@@ -1,7 +1,7 @@
 -- Up
 CREATE TABLE users (
-  id UUID PRIMARY KEY NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL,
+  uuid UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
   name TEXT NOT NULL
 );
