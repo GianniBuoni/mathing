@@ -2,7 +2,10 @@ syntax = "proto3";
 package mathing;
 
 message UserDeleteRequest {
-  uint64 uuid = 1;
+  oneof one_of_id {
+    string name = 1;
+    string uuid = 2;
+  }
 }
 
 message UserDeleteResponse {
