@@ -1,13 +1,12 @@
 syntax = "proto3";
 package mathing;
 
+import "user_row.proto";
+
 message UserCreateRequest {
   string name = 1;
 }
 
 message UserCreateResponse {
-  string uuid = 1;
-  string created_at = 2;
-  string updated_at = 3;
-  string name = 4;
+  UserRow user_row = 1;
 }

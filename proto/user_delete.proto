@@ -1,13 +1,13 @@
 syntax = "proto3";
 package mathing;
 
+import "rows_affected.proto";
+import "one_of_id.proto";
+
 message UserDeleteRequest {
-  oneof one_of_id {
-    string name = 1;
-    string uuid = 2;
-  }
+  OneOfId one_of_id = 1;
 }
 
 message UserDeleteResponse {
-  uint64 rows_affected = 1;
+  RowsAffected rows_affected = 1;
 }

@@ -1,0 +1,6 @@
+syntax = "proto3";
+package mathing;
+
+message RowsAffected {
+  uint64 rows_affected = 1;
+}
