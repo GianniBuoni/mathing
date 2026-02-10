@@ -1,8 +1,8 @@
 use sqlx::types::Uuid;
 
-use crate::prelude::mathing_proto::user_delete_request::OneOfId;
+use crate::prelude::mathing_proto::{RowsAffected, one_of_id::OneOfId};
 
-use super::*;
+use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
     pub(super) async fn handle_delete(
@@ -14,16 +14,20 @@ impl MathingUserService {
 
         let id = req
             .one_of_id
+            .ok_or(Status::invalid_argument("No deletion fields set."))?
+            .one_of_id
             .ok_or(Status::invalid_argument("No deletion fields set."))?;
 
         let conn = DBconn::try_get()
             .await
             .map_err(|e| Status::unavailable(e.to_string()))?;
 
+        let rows_affected = user_delete(conn, id)
+            .await
+            .map_err(|e| Status::internal(e.to_string()))?;
+
         let message = UserDeleteResponse {
-            rows_affected: user_delete(conn, id)
-                .await
-                .map_err(|e| Status::internal(e.to_string()))?,
+            rows_affected: Some(RowsAffected { rows_affected }),
         };
 
         Ok(Response::new(message))
@@ -39,13 +43,9 @@ async fn user_delete(conn: &sqlx::PgPool, one_of_id: OneOfId) -> anyhow::Result<
 
 async fn user_delete_name(conn: &sqlx::PgPool, name: &str) -> anyhow::Result<u64> {
     // check if user name exists
-    let rows = sqlx::query_as!(
-        super::user_row::UserRow,
-        "SELECT * from users WHERE name LIKE $1",
-        name
-    )
-    .fetch_all(conn)
-    .await?;
+    let rows = sqlx::query_as!(UserPgRow, "SELECT * from users WHERE name LIKE $1", name)
+        .fetch_all(conn)
+        .await?;
 
     if rows.len() > 1 || rows.is_empty() {
         let message = format!(

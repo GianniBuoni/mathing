@@ -1,5 +1,4 @@
-use super::user_row::UserRow;
-use super::*;
+use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
     pub(super) async fn handle_create(
@@ -12,20 +11,22 @@ impl MathingUserService {
         let conn = DBconn::try_get()
             .await
             .map_err(|e| Status::unavailable(e.to_string()))?;
-        let message = user_create(conn, req.name.as_str())
-            .await
-            .map_err(|e| Status::internal(e.to_string()))?
-            .into();
-        Ok(Response::new(message))
+        let user_row = Some(
+            user_create(conn, req.name.as_str())
+                .await
+                .map_err(|e| Status::internal(e.to_string()))?
+                .into(),
+        );
+        Ok(Response::new(UserCreateResponse { user_row }))
     }
 }
 
-async fn user_create(conn: &sqlx::PgPool, name: &str) -> anyhow::Result<UserRow> {
+async fn user_create(conn: &sqlx::PgPool, name: &str) -> anyhow::Result<UserPgRow> {
     let mut tx = conn.begin().await?;
     let now = chrono::Local::now();
 
     let row = sqlx::query_as!(
-        UserRow,
+        UserPgRow,
         "
         INSERT INTO users (
             created_at, updated_at, name
