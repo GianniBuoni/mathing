@@ -5,10 +5,16 @@ edition = "2024"
 
 [dependencies]
 anyhow = {workspace = true}
+chrono = "0.4.43"
 env_logger = "0.11.8"
 log = "0.4.29"
 prost = {workspace = true}
-sqlx = { version = "0.8.6", features = ["postgres","runtime-tokio"] }
+sqlx = {version = "0.8.6", features = [
+  "chrono",
+  "postgres",
+  "runtime-tokio",
+  "uuid"
+]}
 thiserror = {workspace = true}
 tokio = {workspace = true}
 tonic = {workspace = true}

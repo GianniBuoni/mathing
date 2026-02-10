@@ -5,6 +5,7 @@ use mathing_proto::{UserCreateRequest, UserCreateResponse, UserDeleteRequest, Us
 
 mod user_create;
 mod user_delete;
+mod user_row;
 
 #[derive(Debug, Default)]
 pub struct MathingUserService {}
@@ -15,13 +16,13 @@ impl UserService for MathingUserService {
         &self,
         req: Request<UserCreateRequest>,
     ) -> Result<Response<UserCreateResponse>, Status> {
-        self.handle_create(req)
+        self.handle_create(req).await
     }
 
     async fn user_delete(
         &self,
         req: Request<UserDeleteRequest>,
     ) -> Result<Response<UserDeleteResponse>, Status> {
-        self.handle_delete(req)
+        self.handle_delete(req).await
     }
 }
