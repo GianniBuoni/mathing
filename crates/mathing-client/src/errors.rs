@@ -4,6 +4,11 @@ use std::sync::Arc;
 pub enum ServerError {
     #[error("Connection to endpoint '{0}' failed.")]
     Connection(Arc<str>),
+    /// For when the client expects a message with an Optional field
+    /// to return a Some value,
+    /// but the server successfully returned a None value somehow.
+    #[error("Server returned a None values for the message {0}.")]
+    NoneValue(Arc<str>),
 }
 
 #[derive(thiserror::Error, Debug)]
