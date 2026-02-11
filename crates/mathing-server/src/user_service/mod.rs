@@ -1,10 +1,15 @@
 use crate::prelude::*;
 
 pub use mathing_proto::user_service_server::{UserService, UserServiceServer};
-use mathing_proto::{UserCreateRequest, UserCreateResponse, UserDeleteRequest, UserDeleteResponse};
+use mathing_proto::{
+    UserCreateRequest, UserCreateResponse, UserDeleteRequest, UserDeleteResponse, UserGetRequest,
+    UserGetResponse, UserListRequest, UserListResponse,
+};
 
 mod user_create;
 mod user_delete;
+mod user_get;
+mod user_list;
 mod user_row;
 
 #[derive(Debug, Default)]
@@ -24,5 +29,19 @@ impl UserService for MathingUserService {
         req: Request<UserDeleteRequest>,
     ) -> Result<Response<UserDeleteResponse>, Status> {
         self.handle_delete(req).await
+    }
+
+    async fn user_get(
+        &self,
+        req: Request<UserGetRequest>,
+    ) -> Result<Response<UserGetResponse>, Status> {
+        self.handle_get(req).await
+    }
+
+    async fn user_list(
+        &self,
+        req: Request<UserListRequest>,
+    ) -> Result<Response<UserListResponse>, Status> {
+        self.handle_list(req).await
     }
 }

@@ -8,9 +8,8 @@ impl MathingUserService {
         let req = req.into_inner();
 
         info!("{:?}", req);
-        let conn = DBconn::try_get()
-            .await
-            .map_err(|e| Status::unavailable(e.to_string()))?;
+        let conn = DBconn::try_get().await?;
+
         let user_row = Some(
             user_create(conn, req.name.as_str())
                 .await

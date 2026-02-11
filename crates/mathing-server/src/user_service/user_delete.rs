@@ -2,7 +2,7 @@ use sqlx::types::Uuid;
 
 use crate::prelude::mathing_proto::{RowsAffected, one_of_id::OneOfId};
 
-use super::{user_row::UserPgRow, *};
+use super::*;
 
 impl MathingUserService {
     pub(super) async fn handle_delete(
@@ -18,9 +18,7 @@ impl MathingUserService {
             .one_of_id
             .ok_or(Status::invalid_argument("No deletion fields set."))?;
 
-        let conn = DBconn::try_get()
-            .await
-            .map_err(|e| Status::unavailable(e.to_string()))?;
+        let conn = DBconn::try_get().await?;
 
         let rows_affected = user_delete(conn, id)
             .await
@@ -43,15 +41,7 @@ async fn user_delete(conn: &sqlx::PgPool, one_of_id: OneOfId) -> anyhow::Result<
 
 async fn user_delete_name(conn: &sqlx::PgPool, name: &str) -> anyhow::Result<u64> {
     // check if user name exists
-    let rows = sqlx::query_as!(UserPgRow, "SELECT * from users WHERE name=$1", name)
-        .fetch_one(conn)
-        .await
-        .map_err(|_| {
-            let message =
-                format!("Db could not find a user entry matching the given name: '{name}'",);
-            anyhow::Error::msg(message)
-        })?;
-
+    let rows = super::user_get::user_get(conn, name).await?;
     user_delete_uuid(conn, rows.uuid).await
 }
 

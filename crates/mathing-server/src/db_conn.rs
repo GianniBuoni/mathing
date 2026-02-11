@@ -23,10 +23,11 @@ impl DBconn {
         info!("Database connection successful; server ready to make SQL queries.");
         Ok(Self(pool))
     }
-    pub async fn try_get() -> anyhow::Result<&'static PgPool, ServerError> {
+    pub async fn try_get() -> anyhow::Result<&'static PgPool, Status> {
         Ok(&CONFIG
             .get()
-            .ok_or(ServerError::ConfigError("DB".into()))?
+            .ok_or(ServerError::ConfigError("DB".into()))
+            .map_err(|e| Status::unavailable(e.to_string()))?
             .store
             .0)
     }
