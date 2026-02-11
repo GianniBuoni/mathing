@@ -11,6 +11,19 @@ in {
         "${extraModulesPath}/language/c.nix"
       ];
 
+      devshell.startup.dbCheck.text = ''
+        pg_check=$(pg_ctl status | grep "no server running");
+        if [ "$pg_check" == "" ]; then
+          echo "";
+          echo "PG server running!";
+          echo "";
+        else
+          echo "";
+          echo "PG server offline.";
+          echo "";
+        fi
+      '';
+
       packages = with pkgs; [
         # general shell utilities
         just
