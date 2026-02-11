@@ -22,6 +22,10 @@ pub struct UserArgs {
 
 #[derive(ValueEnum, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CrudAction {
+    /// Creates a database entry for this entity; alias: "add"
+    #[value(alias = "add")]
     Create,
+    /// Deletes a database entry for this entity; alias: "rm"
+    #[value(alias = "rm")]
     Delete,
 }
