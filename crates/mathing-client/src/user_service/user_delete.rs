@@ -9,17 +9,17 @@ impl UserService {
                 one_of_id: Some(one_of_id::OneOfId::Name(args.name.to_string())),
             }),
         };
-        let rows = self
-            .connect()
-            .await?
-            .user_delete(req)
-            .await?
-            .into_inner()
-            .rows_affected
-            .ok_or(ServerError::NoneValue("UserDeleteResponse".into()))?
-            .rows_affected;
+        let rows = Into::<tabled::Table>::into(
+            self.connect()
+                .await?
+                .user_delete(req)
+                .await?
+                .into_inner()
+                .rows_affected
+                .ok_or(ServerError::NoneValue("UserDeleteResponse".into()))?,
+        );
 
-        println!("Rows deleted: {rows}.");
+        println!("{rows}");
 
         Ok(())
     }

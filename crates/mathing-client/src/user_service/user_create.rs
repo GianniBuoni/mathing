@@ -7,17 +7,17 @@ impl UserService {
         let req = tonic::Request::new(UserCreateRequest {
             name: args.name.to_string(),
         });
-        let user = self
-            .connect()
-            .await?
-            .user_create(req)
-            .await?
-            .into_inner()
-            .user_row
-            .ok_or(ServerError::NoneValue("UserCreateResponse".into()))?
-            .name;
+        let user = Into::<tabled::Table>::into(
+            self.connect()
+                .await?
+                .user_create(req)
+                .await?
+                .into_inner()
+                .user_row
+                .ok_or(ServerError::NoneValue("UserCreateResponse".into()))?,
+        );
 
-        println!("User sucessfully added: {user}.");
+        println!("{user}");
 
         Ok(())
     }

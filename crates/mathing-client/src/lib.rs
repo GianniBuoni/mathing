@@ -7,5 +7,6 @@ pub mod prelude {
 }
 
 mod cli;
+mod cli_tables;
 pub mod errors;
 mod user_service;
