@@ -11,6 +11,7 @@ thiserror =  {workspace = true}
 tokio = {workspace = true}
 tonic = {workspace = true}
 tonic-prost = {workspace = true}
+tabled = "0.20.0"
 
 [build-dependencies]
 tonic-prost-build = {workspace = true}
