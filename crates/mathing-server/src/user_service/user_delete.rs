@@ -43,19 +43,16 @@ async fn user_delete(conn: &sqlx::PgPool, one_of_id: OneOfId) -> anyhow::Result<
 
 async fn user_delete_name(conn: &sqlx::PgPool, name: &str) -> anyhow::Result<u64> {
     // check if user name exists
-    let rows = sqlx::query_as!(UserPgRow, "SELECT * from users WHERE name LIKE $1", name)
-        .fetch_all(conn)
-        .await?;
+    let rows = sqlx::query_as!(UserPgRow, "SELECT * from users WHERE name=$1", name)
+        .fetch_one(conn)
+        .await
+        .map_err(|_| {
+            let message =
+                format!("Db could not find a user entry matching the given name: '{name}'",);
+            anyhow::Error::msg(message)
+        })?;
 
-    if rows.len() > 1 || rows.is_empty() {
-        let message = format!(
-            "Db could not find user, or too many entries matched the given name: {:?}",
-            rows
-        );
-        Err(anyhow::Error::msg(message))
-    } else {
-        user_delete_uuid(conn, rows.first().unwrap().uuid).await
-    }
+    user_delete_uuid(conn, rows.uuid).await
 }
 
 async fn user_delete_uuid(conn: &sqlx::PgPool, uuid: Uuid) -> anyhow::Result<u64> {
