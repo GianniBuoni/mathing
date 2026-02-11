@@ -1,0 +1,10 @@
+syntax = "proto3";
+package mathing;
+
+import "user_row.proto";
+
+message UserListRequest {}
+
+message UserListResponse {
+  repeated UserRow users = 1;
+}

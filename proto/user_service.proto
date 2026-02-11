@@ -3,8 +3,12 @@ package mathing;
 
 import "user_create.proto";
 import "user_delete.proto";
+import "user_get.proto";
+import "user_list.proto";
 
 service UserService {
   rpc UserCreate (UserCreateRequest) returns (UserCreateResponse);
   rpc UserDelete (UserDeleteRequest) returns (UserDeleteResponse);
+  rpc UserGet (UserGetRequest) returns (UserGetResponse);
+  rpc UserList (UserListRequest) returns (UserListResponse);
 }
