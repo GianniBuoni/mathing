@@ -22,3 +22,16 @@ pub enum ClientError {
     )]
     EndpointInvalid(Arc<str>),
 }
+
+/// This function returns a clap fromatted error for missing required arguments.
+/// Some clap arguments accept Optionals, but the EnumValues they are
+/// combined with expect a Some value.
+pub fn clap_missing_arg(value: &str) -> clap::Error {
+    let mut err = clap::Error::new(clap::error::ErrorKind::MissingRequiredArgument);
+    let arg = format!("<{}>", value.to_uppercase());
+    err.insert(
+        clap::error::ContextKind::Usage,
+        clap::error::ContextValue::StyledStr(arg.into()),
+    );
+    err
+}

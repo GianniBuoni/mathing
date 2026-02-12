@@ -14,7 +14,6 @@ impl Default for TableStyle {
             Style::blank().horizontals([(1, HorizontalLine::empty().horizontal('═'))]),
         );
         theme.set_borders_top(' ');
-        theme.set_borders_bottom(' ');
         Self(theme)
     }
 }
@@ -24,6 +23,21 @@ impl From<UserRow> for Table {
         let mut table = Builder::with_capacity(2, 1);
         table.push_record(["USER CREATED"]);
         table.push_record([value.name]);
+
+        let mut table = table.build();
+        table
+            .with(TableStyle::default().0)
+            .modify(FirstRow, Color::FG_BRIGHT_GREEN);
+
+        table
+    }
+}
+
+impl FromIterator<UserRow> for Table {
+    fn from_iter<T: IntoIterator<Item = UserRow>>(iter: T) -> Self {
+        let mut table = Builder::new();
+        table.push_record(["USERS"]);
+        iter.into_iter().for_each(|u| table.push_record([u.name]));
 
         let mut table = table.build();
         table

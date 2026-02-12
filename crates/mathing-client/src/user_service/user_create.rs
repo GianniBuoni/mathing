@@ -1,11 +1,14 @@
-use crate::prelude::mathing_proto::UserCreateRequest;
+use crate::{errors, prelude::mathing_proto::UserCreateRequest};
 
 use super::*;
 
 impl UserService {
     pub(super) async fn handle_create(&self, args: UserArgs) -> anyhow::Result<()> {
         let req = tonic::Request::new(UserCreateRequest {
-            name: args.name.to_string(),
+            name: args
+                .name
+                .ok_or_else(|| errors::clap_missing_arg("name"))?
+                .to_string(),
         });
         let user = Into::<tabled::Table>::into(
             self.connect()

@@ -7,6 +7,8 @@ use crate::prelude::{mathing_proto::user_service_client::UserServiceClient, *};
 
 mod user_create;
 mod user_delete;
+mod user_get;
+mod user_list;
 
 #[derive(Default, Debug)]
 pub struct UserService {
@@ -34,6 +36,8 @@ impl UserService {
         match args.action {
             CrudAction::Create => self.handle_create(args).await?,
             CrudAction::Delete => self.handle_delete(args).await?,
+            CrudAction::Get => self.handle_get(args).await?,
+            CrudAction::List => self.handle_list().await?,
         }
         Ok(())
     }
