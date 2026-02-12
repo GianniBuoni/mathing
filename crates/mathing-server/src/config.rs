@@ -16,10 +16,10 @@ pub struct ServerConfig {
 impl ServerConfig {
     /// Initailizes all static configurations for the server.
     /// Does not return a struct; use the getters for each field to get a sepcific config component.
-    pub async fn try_init() -> anyhow::Result<()> {
+    pub async fn try_init() -> Result<(), Status> {
         info!("Initializing server configuration.");
-        let config = async || {
-            anyhow::Ok(Self {
+        let config = async || -> Result<Self, Status> {
+            Ok(Self {
                 store: DBconn::try_init().await?,
                 endpoint: ServerEndpoint::try_init()?,
             })

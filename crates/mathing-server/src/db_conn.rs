@@ -1,4 +1,7 @@
+use std::time::Duration;
+
 use sqlx::PgPool;
+use tokio_context::context::{Context, Handle};
 
 use crate::prelude::*;
 
@@ -9,11 +12,11 @@ pub mod prelude {
 pub struct DBconn(PgPool);
 
 impl DBconn {
-    pub async fn try_init() -> anyhow::Result<Self> {
+    pub async fn try_init() -> Result<Self, Status> {
         let key = "DATABASE_URL";
 
         info!("Parsing env variable: {key}.");
-        let url = std::env::var(key).map_err(|_| ServerError::ConfigMissing(key.into()))?;
+        let url = std::env::var(key).map_err(|_| ServerError::ConfigMissing(key))?;
 
         info!("Establishing connection with database endpoint: {url}");
         let pool = PgPool::connect(url.as_str())
@@ -23,12 +26,12 @@ impl DBconn {
         info!("Database connection successful; server ready to make SQL queries.");
         Ok(Self(pool))
     }
-    pub async fn try_get() -> anyhow::Result<&'static PgPool, Status> {
-        Ok(&CONFIG
-            .get()
-            .ok_or(ServerError::ConfigError("DB".into()))
-            .map_err(|e| Status::unavailable(e.to_string()))?
-            .store
-            .0)
+
+    pub async fn try_get() -> Result<&'static PgPool, ServerError> {
+        Ok(&CONFIG.get().ok_or(ServerError::ConfigError("DB"))?.store.0)
+    }
+
+    pub fn context() -> (Context, Handle) {
+        Context::with_timeout(Duration::from_secs(5))
     }
 }
