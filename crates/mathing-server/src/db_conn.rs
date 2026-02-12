@@ -19,9 +19,17 @@ impl DBconn {
         let url = std::env::var(key).map_err(|_| ServerError::ConfigMissing(key))?;
 
         info!("Establishing connection with database endpoint: {url}");
-        let pool = PgPool::connect(url.as_str())
-            .await
-            .map_err(|_| DbError::ConnectionError(url))?;
+
+        let (mut ctx, _handle) = Self::context();
+
+        let pool = tokio::select! {
+            _ = ctx.done() => return Err(
+                DbError::ConnectionError(url).into()
+            ),
+            pool = PgPool::connect(url.as_str()) => {
+                pool.map_err(Into::<DbError>::into)?
+            }
+        };
 
         info!("Database connection successful; server ready to make SQL queries.");
         Ok(Self(pool))

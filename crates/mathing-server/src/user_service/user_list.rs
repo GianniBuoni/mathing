@@ -12,19 +12,23 @@ impl MathingUserService {
         info!("{:?}", req.into_inner());
 
         let conn = DBconn::try_get().await?;
+        let (mut ctx, _handle) = DBconn::context();
 
-        let users = user_list(conn)
-            .await
-            .map_err(|e| Status::internal(e.to_string()))?
-            .into_iter()
-            .map(Into::<UserRow>::into)
-            .collect();
+        let users = tokio::select! {
+            _ = ctx.done() => return Err(
+                DbError::ContextError.into()
+            ),
+            users = user_list(conn) => users?
+                .into_iter()
+                .map(Into::<UserRow>::into)
+                .collect()
+        };
 
         Ok(Response::new(UserListResponse { users }))
     }
 }
 
-async fn user_list(conn: &PgPool) -> anyhow::Result<Vec<UserPgRow>> {
+async fn user_list(conn: &PgPool) -> Result<Vec<UserPgRow>, DbError> {
     Ok(sqlx::query_as!(UserPgRow, "SELECT * FROM users")
         .fetch_all(conn)
         .await?)

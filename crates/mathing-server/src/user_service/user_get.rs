@@ -1,5 +1,7 @@
 use sqlx::PgPool;
 
+use crate::prelude::mathing_proto::UserRow;
+
 use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
@@ -11,25 +13,25 @@ impl MathingUserService {
         info!("{:?}", name);
 
         let conn = DBconn::try_get().await?;
+        let (mut ctx, _handle) = DBconn::context();
 
-        let user = Some(
-            user_get(conn, name.name.as_str())
-                .await
-                .map_err(|e| Status::internal(e.to_string()))?
-                .into(),
-        );
+        let user = tokio::select! {
+            _ = ctx.done() => return Err(
+                DbError::ContextError.into()
+            ),
+            user = user_get(conn, name.name.as_str()) => Some(
+                user
+                .map(Into::<UserRow>::into)?
+            ),
+        };
 
         Ok(Response::new(UserGetResponse { user }))
     }
 }
 
-pub(super) async fn user_get(conn: &PgPool, name: &str) -> anyhow::Result<UserPgRow> {
+pub(super) async fn user_get(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
     sqlx::query_as!(UserPgRow, "SELECT * FROM users WHERE name=$1", name)
         .fetch_one(conn)
         .await
-        .map_err(|_| {
-            let message =
-                format!("Db could not find a user entry matching the given name: '{name}'",);
-            anyhow::Error::msg(message)
-        })
+        .map_err(|_| DbError::EntryNotFound("users", name.to_string()))
 }
