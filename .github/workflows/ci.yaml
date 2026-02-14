@@ -16,9 +16,7 @@ jobs:
         sudo apt-get install xz-utils
     - name: Install nix
       uses: cachix/install-nix-action@v31
-    - name: Enter dev shell
-      run: nix develop .#ci
     - name: Test shell environment
-      run: enterTest
+      run: nix develop .#ci --command enterTest
     - name: Run lint
-      run: just lint
+      run: nix develop .#ci --command just lint
