@@ -1,0 +1,21 @@
+name: Mathing CI
+on:
+  pull_request:
+    types:
+    - opened
+    - edited
+    branches:
+    - main
+
+jobs:
+  lint:
+    runs-on: arc-mathing
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install nix
+      uses: cachix/install-nix-actions@v31
+    - name: Enter dev shell
+      run: nix develop .#ci
+    - name: Run lint
+      run: just lint
