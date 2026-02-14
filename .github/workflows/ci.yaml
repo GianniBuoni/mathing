@@ -18,5 +18,7 @@ jobs:
       uses: cachix/install-nix-action@v31
     - name: Enter dev shell
       run: nix develop .#ci
+    - name: Test shell environment
+      run: enterTest
     - name: Run lint
       run: just lint
