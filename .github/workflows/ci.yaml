@@ -5,6 +5,22 @@ on:
     - main
 
 jobs:
+  build:
+    runs-on: arc-mathing
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install nix deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install xz-utils
+    - name: Install nix
+      uses: cachix/install-nix-action@v31
+    - name: Test shell environment
+      run: nix develop .#ciBuild --command enterTest
+    - name: Run lint
+      run: nix develop .#ciBuild --command just
+
   lint:
     runs-on: arc-mathing
     steps:
