@@ -27,20 +27,6 @@ in {
       (mkEnv "LOG_LEVEL" "info")
       (mkEnv "SERVER_URI" "[::1]:50051")
       (mkEnv "PGDATA" ".postgres")
-      (mkEnv "SQLX_OFFLINE" "true")
-    ];
-
-    commands = [
-      {
-        name = "enterTest";
-        help = "Tests whether the testing CI environment has all the tools it needs";
-        command = ''
-          cargo -V;
-          just -V;
-          sqlx -V;
-          protoc --version
-        '';
-      }
     ];
   });
 }

@@ -15,12 +15,21 @@
         default
       ];
     };
+    ciBuild = {extraModulesPath, ...}: {
+      imports = [
+        "${extraModulesPath}/language/rust.nix"
+        "${extraModulesPath}/language/c.nix"
+        ciBuild
+        enterTest
+        sharedPkgs
+      ];
+    };
     ciLint = {extraModulesPath, ...}: {
       imports = [
         "${extraModulesPath}/language/rust.nix"
         "${extraModulesPath}/language/c.nix"
+        enterTest
         sharedPkgs
-        ciLint
       ];
     };
   };

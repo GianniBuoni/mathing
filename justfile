@@ -9,7 +9,7 @@ lint:
   cargo clippy -- -D warnings
 
 [default]
-build: test lint
+build: test
   cargo build
 
 @start_db:
