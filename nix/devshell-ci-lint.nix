@@ -1,9 +1,5 @@
-{moduleWithSystem, ...}: {
-  flake.aspects.devshells.ci = moduleWithSystem ({pkgs, ...}: {
-    packages = with pkgs; [
-      just
-    ];
-
+{
+  flake.aspects.devshells.ciLint = {
     commands = [
       {
         name = "enterTest";
@@ -12,8 +8,9 @@
           cargo -V;
           cargo clippy -V;
           just -V
+          protoc --version
         '';
       }
     ];
-  });
+  };
 }

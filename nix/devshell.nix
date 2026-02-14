@@ -11,14 +11,16 @@
       imports = [
         "${extraModulesPath}/language/rust.nix"
         "${extraModulesPath}/language/c.nix"
+        sharedPkgs
         default
       ];
     };
-    ci = {extraModulesPath, ...}: {
+    ciLint = {extraModulesPath, ...}: {
       imports = [
         "${extraModulesPath}/language/rust.nix"
         "${extraModulesPath}/language/c.nix"
-        ci
+        sharedPkgs
+        ciLint
       ];
     };
   };

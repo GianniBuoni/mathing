@@ -16,11 +16,7 @@ in {
     '';
 
     packages = with pkgs; [
-      # general shell utilities
-      just
       rust-analyzer
-      # api tools
-      grpc-tools
       # db utilities
       postgresql
       sqlx-cli
