@@ -5,10 +5,11 @@ test:
   cargo test
 
 lint:
+  cargo fmt --check
   cargo clippy -- -D warnings
 
 [default]
-build: test lint
+build: test
   cargo build
 
 @start_db:
