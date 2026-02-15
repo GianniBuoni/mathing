@@ -1,7 +1,5 @@
 use sqlx::PgPool;
 
-use crate::prelude::mathing_proto::UserRow;
-
 use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
@@ -13,17 +11,11 @@ impl MathingUserService {
         info!("{:?}", name);
 
         let conn = DBconn::try_get().await?;
-        let (mut ctx, _handle) = DBconn::context();
 
-        let user = tokio::select! {
-            _ = ctx.done() => return Err(
-                DbError::ContextError.into()
-            ),
-            user = user_get(conn, name.name.as_str()) => Some(
-                user
-                .map(Into::<UserRow>::into)?
-            ),
-        };
+        let user = tokio::time::timeout(DBconn::context(), user_get(conn, &name.name))
+            .await
+            .map_err(|_| DbError::ContextError)?
+            .map(|u| Some(u.into()))?;
 
         Ok(Response::new(UserGetResponse { user }))
     }

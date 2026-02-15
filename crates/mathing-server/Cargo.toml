@@ -17,7 +17,6 @@ sqlx = {version = "0.8.6", features = [
 ]}
 thiserror = {workspace = true}
 tokio = {workspace = true}
-tokio-context = "0.1.3"
 tonic = {workspace = true}
 tonic-prost = {workspace = true}
 

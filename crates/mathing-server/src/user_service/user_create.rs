@@ -1,5 +1,3 @@
-use crate::prelude::mathing_proto::UserRow;
-
 use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
@@ -11,14 +9,11 @@ impl MathingUserService {
 
         info!("{:?}", req);
         let conn = DBconn::try_get().await?;
-        let (mut ctx, _handle) = DBconn::context();
 
-        let user_row = tokio::select! {
-            _ = ctx.done() => return Err(DbError::ContextError.into()),
-            user = user_create(conn, req.name.as_str()) => Some(
-                user.map(Into::<UserRow>::into)?
-            ),
-        };
+        let user_row = tokio::time::timeout(DBconn::context(), user_create(conn, &req.name))
+            .await
+            .map_err(|_| DbError::ContextError)?
+            .map(|u| Some(u.into()))?;
 
         Ok(Response::new(UserCreateResponse { user_row }))
     }
