@@ -25,3 +25,37 @@ impl From<UserPgRow> for UserRow {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::ops::Add;
+
+    use chrono::Duration;
+
+    use super::*;
+    /// Basic test to make sure that fields are correctly remapped
+    /// to a UserRow struct
+    #[test]
+    fn test_user_row_into() {
+        let created_at = Local::now();
+        let updated_at = Local::now().add(Duration::days(1));
+
+        let pg_row = UserPgRow {
+            uuid: uuid::Uuid::nil(),
+            created_at,
+            updated_at,
+            name: "noodle".into(),
+        };
+
+        let want = UserRow {
+            uuid: uuid::Uuid::nil().to_string(),
+            created_at: created_at.to_string(),
+            updated_at: updated_at.to_string(),
+            name: "noodle".into(),
+        };
+        let want = format!("{:?}", want);
+        let got = format!("{:?}", Into::<UserRow>::into(pg_row));
+
+        assert_eq!(want, got);
+    }
+}
