@@ -41,8 +41,7 @@ mod tests {
         let now = chrono::Local::now();
 
         sqlx::query!(
-            "INSERT INTO users (created_at, updated_at, name) VALUES ($1, $2, $3)",
-            now,
+            "INSERT INTO users (created_at, updated_at, name) VALUES ($1, $1, $2)",
             now,
             want.as_ref(),
         )
