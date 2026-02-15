@@ -12,24 +12,18 @@ impl MathingUserService {
         let req = req.into_inner();
         info!("{:?}", req);
 
-        let id = req
+        let one_of_id = req
             .one_of_id
             .ok_or(ClientError::MissingField("name or uuid"))?
             .one_of_id
             .ok_or(ClientError::MissingField("name or uuid"))?;
 
         let conn = DBconn::try_get().await?;
-        let (mut ctx, _handle) = DBconn::context();
 
-        let rows_affected = tokio::select! {
-            _ = ctx.done() => return Err(
-                DbError::ContextError.into()
-            ),
-            rows = user_delete(conn, id) => {
-                let rows_affected = rows?;
-                Some(RowsAffected { rows_affected })
-            }
-        };
+        let rows_affected = tokio::time::timeout(DBconn::context(), user_delete(conn, one_of_id))
+            .await
+            .map_err(|_| DbError::ContextError)?
+            .map(|rows_affected| Some(RowsAffected { rows_affected }))?;
 
         Ok(Response::new(UserDeleteResponse { rows_affected }))
     }

@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use sqlx::PgPool;
-use tokio_context::context::{Context, Handle};
 
 use crate::prelude::*;
 
@@ -20,16 +19,10 @@ impl DBconn {
 
         info!("Establishing connection with database endpoint: {url}");
 
-        let (mut ctx, _handle) = Self::context();
-
-        let pool = tokio::select! {
-            _ = ctx.done() => return Err(
-                DbError::ConnectionError(url).into()
-            ),
-            pool = PgPool::connect(url.as_str()) => {
-                pool.map_err(Into::<DbError>::into)?
-            }
-        };
+        let pool = tokio::time::timeout(Self::context(), PgPool::connect(&url))
+            .await
+            .map_err(|_| DbError::ContextError)?
+            .map_err(|_| DbError::ConnectionError(url))?;
 
         info!("Database connection successful; server ready to make SQL queries.");
         Ok(Self(pool))
@@ -39,7 +32,7 @@ impl DBconn {
         Ok(&CONFIG.get().ok_or(ServerError::ConfigError("DB"))?.store.0)
     }
 
-    pub fn context() -> (Context, Handle) {
-        Context::with_timeout(Duration::from_secs(5))
+    pub fn context() -> Duration {
+        Duration::from_secs(10)
     }
 }

@@ -12,17 +12,13 @@ impl MathingUserService {
         info!("{:?}", req.into_inner());
 
         let conn = DBconn::try_get().await?;
-        let (mut ctx, _handle) = DBconn::context();
 
-        let users = tokio::select! {
-            _ = ctx.done() => return Err(
-                DbError::ContextError.into()
-            ),
-            users = user_list(conn) => users?
-                .into_iter()
-                .map(Into::<UserRow>::into)
-                .collect()
-        };
+        let users = tokio::time::timeout(DBconn::context(), user_list(conn))
+            .await
+            .map_err(|_| DbError::ContextError)??
+            .into_iter()
+            .map(Into::<UserRow>::into)
+            .collect();
 
         Ok(Response::new(UserListResponse { users }))
     }
