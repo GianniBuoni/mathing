@@ -25,4 +25,6 @@ build: test
   else \
     pg_ctl init; \
     just start_db; \
+    sqlx database create; \
+    sqlx migrate run --source ./crates/mathing-server/migrations; \
   fi;
