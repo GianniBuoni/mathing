@@ -64,7 +64,11 @@ mod tests {
             let message = format!("Test query expected to fail but returned {:?}", res);
             anyhow::Error::msg(message)
         });
-        assert_eq!(want.to_string(), got.err().unwrap().to_string());
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
 
         Ok(())
     }

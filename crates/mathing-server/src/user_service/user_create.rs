@@ -1,3 +1,5 @@
+use sqlx::PgPool;
+
 use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
@@ -19,7 +21,7 @@ impl MathingUserService {
     }
 }
 
-async fn user_create(conn: &sqlx::PgPool, name: &str) -> Result<UserPgRow, DbError> {
+async fn user_create(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
     let mut tx = conn.begin().await?;
     let now = chrono::Local::now();
 
@@ -42,4 +44,42 @@ async fn user_create(conn: &sqlx::PgPool, name: &str) -> Result<UserPgRow, DbErr
 
     tx.commit().await?;
     Ok(row)
+}
+
+#[cfg(test)]
+mod test {
+    use std::sync::Arc;
+
+    use super::*;
+
+    #[sqlx::test]
+    async fn test_user_create(conn: PgPool) -> anyhow::Result<()> {
+        let want: Arc<str> = "jon".into();
+        let got = user_create(&conn, "jon").await?;
+
+        assert_eq!(want, got.name);
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    /// Tests if the unique contraint of the DB is properly enforced,
+    /// and the correct error type is returned.
+    async fn test_user_create_unique(conn: PgPool) -> anyhow::Result<()> {
+        let name = "jon";
+        let want = DbError::UniqueConstraint("users", "name");
+
+        let _ = user_create(&conn, name).await?;
+        let got = user_create(&conn, name).await.map(|u| {
+            let message = format!("Test expected an error, but returned {:?}", u);
+            anyhow::Error::msg(message)
+        });
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
+
+        Ok(())
+    }
 }
