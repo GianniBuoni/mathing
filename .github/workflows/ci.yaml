@@ -9,13 +9,13 @@ jobs:
     runs-on: arc-mathing
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     - name: Install nix deps
       run: |
         sudo apt-get update
         sudo apt-get install xz-utils
     - name: Install nix
-      uses: cachix/install-nix-action@v31
+      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
     - name: Test shell environment
       run: nix develop . --command enterTest
     - name: Initialize db and migration
@@ -27,13 +27,13 @@ jobs:
     runs-on: arc-mathing
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     - name: Install nix deps
       run: |
         sudo apt-get update
         sudo apt-get install xz-utils
     - name: Install nix
-      uses: cachix/install-nix-action@v31
+      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
     - name: Test shell environment
       run: nix develop .#ciLint --command enterTest
     - name: Run lint
