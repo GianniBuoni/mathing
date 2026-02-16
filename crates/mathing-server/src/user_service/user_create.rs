@@ -62,14 +62,13 @@ mod test {
         Ok(())
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Tests if the unique contraint of the DB is properly enforced,
     /// and the correct error type is returned.
     async fn test_user_create_unique(conn: PgPool) -> anyhow::Result<()> {
         let name = "jon";
         let want = DbError::UniqueConstraint("users", "name");
 
-        let _ = user_create(&conn, name).await?;
         let got = user_create(&conn, name).await.map(|u| {
             let message = format!("Test expected an error, but returned {:?}", u);
             anyhow::Error::msg(message)

@@ -34,19 +34,10 @@ mod tests {
 
     use super::*;
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic get test; expects query to succeed and return the name inputed at the beginning of the test
     async fn test_user_get(conn: PgPool) -> anyhow::Result<()> {
         let want: Arc<str> = "jon".into();
-        let now = chrono::Local::now();
-
-        sqlx::query!(
-            "INSERT INTO users (created_at, updated_at, name) VALUES ($1, $1, $2)",
-            now,
-            want.as_ref(),
-        )
-        .execute(&conn)
-        .await?;
 
         let got = user_get(&conn, want.as_ref()).await?;
         assert_eq!(want, got.name);

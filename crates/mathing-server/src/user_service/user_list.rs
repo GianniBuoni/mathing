@@ -32,23 +32,12 @@ async fn user_list(conn: &PgPool) -> Result<Vec<UserPgRow>, DbError> {
 
 #[cfg(test)]
 mod tests {
-    use chrono::Local;
-
     use super::*;
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic list test, checks that given a table with entries,
     /// the expected amount of entries are retrieved.
     async fn test_user_list(conn: PgPool) -> anyhow::Result<()> {
-        let now = Local::now();
-
-        sqlx::query!(
-            "INSERT INTO users (name, created_at, updated_at) VALUES ('jon', $1, $1), ('noodle', $1, $1 ), ('blue', $1, $1)",
-            now,
-        )
-        .execute(&conn)
-        .await?;
-
         let want = 3;
         let got = user_list(&conn).await?.len();
 
