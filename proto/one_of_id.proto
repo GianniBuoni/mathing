@@ -1,9 +1,0 @@
-syntax = "proto3";
-package mathing;
-
-message OneOfId {
-  oneof one_of_id {
-    string name = 1;
-    string uuid = 2;
-  }
-}
