@@ -13,9 +13,16 @@ build: test
   cargo build
 
 @start_db:
-  pg_check=$(pg_ctl status | grep "no server running"); \
-  if [ "$pg_check" == "" ]; then \
-    echo "PG server running!"; \
+  if [ "$(pg_ctl status | grep "is running")" ]; then \
+    echo "PG server already running."; \
   else \
     pg_ctl start -l $PGDATA/logfile -o --unix_socket_directories=$PWD/$PGDATA; \
-  fi
+  fi;
+
+@init_db:
+  if [ "$(pg_ctl status | grep "is running")" ]; then \
+    echo "PG server already initialized."; \
+  else \
+    pg_ctl init; \
+    just start_db; \
+  fi;
