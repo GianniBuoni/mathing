@@ -1,4 +1,4 @@
-use sqlx::types::Uuid;
+use sqlx::{PgPool, types::Uuid};
 
 use crate::prelude::mathing_proto::{RowsAffected, one_of_id::OneOfId};
 
@@ -29,21 +29,26 @@ impl MathingUserService {
     }
 }
 
-async fn user_delete(conn: &sqlx::PgPool, one_of_id: OneOfId) -> Result<u64, DbError> {
+async fn user_delete(conn: &PgPool, one_of_id: OneOfId) -> Result<u64, DbError> {
     match one_of_id {
         OneOfId::Name(s) => user_delete_name(conn, s.as_str()).await,
         OneOfId::Uuid(u) => user_delete_uuid(conn, u.parse().map_err(|_| DbError::Uuid(u))?).await,
     }
 }
 
-async fn user_delete_name(conn: &sqlx::PgPool, name: &str) -> Result<u64, DbError> {
+async fn user_delete_name(conn: &PgPool, name: &str) -> Result<u64, DbError> {
     // check if user name exists
     let rows = super::user_get::user_get(conn, name).await?;
     user_delete_uuid(conn, rows.uuid).await
 }
 
-async fn user_delete_uuid(conn: &sqlx::PgPool, uuid: Uuid) -> Result<u64, DbError> {
+async fn user_delete_uuid(conn: &PgPool, uuid: Uuid) -> Result<u64, DbError> {
     let mut tx = conn.begin().await?;
+    // check if uuid exists
+    let _ = sqlx::query!("SELECT * FROM users WHERE uuid=$1", uuid)
+        .fetch_one(conn)
+        .await
+        .map_err(|_| DbError::EntryNotFound("users", uuid.to_string()))?;
 
     let rows = sqlx::query!("DELETE FROM users WHERE uuid=$1", uuid)
         .execute(&mut *tx)
@@ -52,4 +57,100 @@ async fn user_delete_uuid(conn: &sqlx::PgPool, uuid: Uuid) -> Result<u64, DbErro
 
     tx.commit().await?;
     Ok(rows)
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::Local;
+
+    use super::{user_row::UserPgRow, *};
+
+    async fn test_row(conn: &PgPool) -> anyhow::Result<UserPgRow> {
+        let test_row = sqlx::query_as!(
+            UserPgRow,
+            "
+            INSERT INTO users (name, created_at, updated_at) VALUES ('jon', $1, $1) RETURNING *
+            ",
+            Local::now()
+        )
+        .fetch_one(conn)
+        .await?;
+
+        Ok(test_row)
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_name(conn: PgPool) -> anyhow::Result<()> {
+        let want = 1;
+        let _ = test_row(&conn).await?;
+        let got = user_delete_name(&conn, "jon").await?;
+
+        assert_eq!(want, got);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_uuid(conn: PgPool) -> anyhow::Result<()> {
+        let want = 1;
+        let uuid = test_row(&conn).await?.uuid;
+        let got = user_delete_uuid(&conn, uuid).await?;
+
+        assert_eq!(want, got);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_one_of_name(conn: PgPool) -> anyhow::Result<()> {
+        let want = 1;
+        let _ = test_row(&conn).await?;
+        let got = user_delete(&conn, OneOfId::Name("jon".into())).await?;
+
+        assert_eq!(want, got);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_one_of_uuid(conn: PgPool) -> anyhow::Result<()> {
+        let want = 1;
+        let uuid = test_row(&conn).await?.uuid;
+        let got = user_delete(&conn, OneOfId::Uuid(uuid.to_string())).await?;
+
+        assert_eq!(want, got);
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_error_name(conn: PgPool) -> anyhow::Result<()> {
+        let want = DbError::EntryNotFound("users", "jon".into());
+        let got = user_delete(&conn, OneOfId::Name("jon".into()))
+            .await
+            .map(|u| {
+                let message = format!("Test expected an error but returned: {u:?}");
+                anyhow::Error::msg(message)
+            });
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn test_user_delete_error_uuid(conn: PgPool) -> anyhow::Result<()> {
+        let uuid = Uuid::nil();
+        let want = DbError::EntryNotFound("users", uuid.to_string());
+        let got = user_delete(&conn, OneOfId::Uuid(uuid.to_string()))
+            .await
+            .map(|u| {
+                let message = format!("Test expected an error, but returned: {u:?}");
+                anyhow::Error::msg(message)
+            });
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
+        Ok(())
+    }
 }

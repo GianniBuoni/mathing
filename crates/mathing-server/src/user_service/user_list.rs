@@ -29,3 +29,41 @@ async fn user_list(conn: &PgPool) -> Result<Vec<UserPgRow>, DbError> {
         .fetch_all(conn)
         .await?)
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::Local;
+
+    use super::*;
+
+    #[sqlx::test]
+    /// Basic list test, checks that given a table with entries,
+    /// the expected amount of entries are retrieved.
+    async fn test_user_list(conn: PgPool) -> anyhow::Result<()> {
+        let now = Local::now();
+
+        sqlx::query!(
+            "INSERT INTO users (name, created_at, updated_at) VALUES ('jon', $1, $1), ('noodle', $1, $1 ), ('blue', $1, $1)",
+            now,
+        )
+        .execute(&conn)
+        .await?;
+
+        let want = 3;
+        let got = user_list(&conn).await?.len();
+
+        assert_eq!(want, got);
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    /// A list request should not error out on an empty table,
+    /// but instead return and empty Vec.
+    async fn test_user_list_empty(conn: PgPool) -> anyhow::Result<()> {
+        let got = user_list(&conn).await?;
+        assert!(got.is_empty());
+
+        Ok(())
+    }
+}

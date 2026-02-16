@@ -17,9 +17,11 @@ jobs:
     - name: Install nix
       uses: cachix/install-nix-action@v31
     - name: Test shell environment
-      run: nix develop .#ciBuild --command enterTest
+      run: nix develop . --command enterTest
+    - name: Initialize db and migration
+      run: nix develop . --command just init_db
     - name: Run tests and build
-      run: nix develop .#ciBuild --command just
+      run: nix develop . --command just
 
   lint:
     runs-on: arc-mathing
