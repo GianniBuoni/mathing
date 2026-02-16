@@ -61,58 +61,49 @@ async fn user_delete_uuid(conn: &PgPool, uuid: Uuid) -> Result<u64, DbError> {
 
 #[cfg(test)]
 mod tests {
-    use chrono::Local;
-
     use super::{user_row::UserPgRow, *};
 
-    async fn test_row(conn: &PgPool) -> anyhow::Result<UserPgRow> {
-        let test_row = sqlx::query_as!(
-            UserPgRow,
-            "
-            INSERT INTO users (name, created_at, updated_at) VALUES ('jon', $1, $1) RETURNING *
-            ",
-            Local::now()
+    async fn get_uuid(conn: &PgPool, name: &str) -> Result<Uuid, sqlx::Error> {
+        Ok(
+            sqlx::query_as!(UserPgRow, "SELECT * FROM users WHERE name=$1", name)
+                .fetch_one(conn)
+                .await?
+                .uuid,
         )
-        .fetch_one(conn)
-        .await?;
-
-        Ok(test_row)
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     async fn test_user_delete_name(conn: PgPool) -> anyhow::Result<()> {
         let want = 1;
-        let _ = test_row(&conn).await?;
         let got = user_delete_name(&conn, "jon").await?;
 
         assert_eq!(want, got);
         Ok(())
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     async fn test_user_delete_uuid(conn: PgPool) -> anyhow::Result<()> {
         let want = 1;
-        let uuid = test_row(&conn).await?.uuid;
+        let uuid = get_uuid(&conn, "jon").await?;
         let got = user_delete_uuid(&conn, uuid).await?;
 
         assert_eq!(want, got);
         Ok(())
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     async fn test_user_delete_one_of_name(conn: PgPool) -> anyhow::Result<()> {
         let want = 1;
-        let _ = test_row(&conn).await?;
         let got = user_delete(&conn, OneOfId::Name("jon".into())).await?;
 
         assert_eq!(want, got);
         Ok(())
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     async fn test_user_delete_one_of_uuid(conn: PgPool) -> anyhow::Result<()> {
         let want = 1;
-        let uuid = test_row(&conn).await?.uuid;
+        let uuid = get_uuid(&conn, "noodle").await?;
         let got = user_delete(&conn, OneOfId::Uuid(uuid.to_string())).await?;
 
         assert_eq!(want, got);
