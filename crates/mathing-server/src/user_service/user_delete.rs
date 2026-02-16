@@ -44,6 +44,11 @@ async fn user_delete_name(conn: &PgPool, name: &str) -> Result<u64, DbError> {
 
 async fn user_delete_uuid(conn: &PgPool, uuid: Uuid) -> Result<u64, DbError> {
     let mut tx = conn.begin().await?;
+    // check if uuid exists
+    let _ = sqlx::query!("SELECT * FROM users WHERE uuid=$1", uuid)
+        .fetch_one(conn)
+        .await
+        .map_err(|_| DbError::EntryNotFound("users", uuid.to_string()))?;
 
     let rows = sqlx::query!("DELETE FROM users WHERE uuid=$1", uuid)
         .execute(&mut *tx)
