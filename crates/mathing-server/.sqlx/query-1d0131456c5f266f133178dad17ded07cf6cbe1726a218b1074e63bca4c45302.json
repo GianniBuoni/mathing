@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        INSERT INTO users (\n            created_at, updated_at, name\n        ) VALUES (\n            $1, $2, $3\n        ) RETURNING *;\n        ",
+  "query": "INSERT INTO users (name) VALUES ($1) RETURNING *",
   "describe": {
     "columns": [
       {
@@ -26,8 +26,6 @@
     ],
     "parameters": {
       "Left": [
-        "Timestamptz",
-        "Timestamptz",
         "Text"
       ]
     },
@@ -38,5 +36,5 @@
       false
     ]
   },
-  "hash": "5ac057f0d61c795189e8906031fe66f02143642d1d1f364d921eeaf021efe9e3"
+  "hash": "1d0131456c5f266f133178dad17ded07cf6cbe1726a218b1074e63bca4c45302"
 }

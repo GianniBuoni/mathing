@@ -23,19 +23,10 @@ impl MathingUserService {
 
 async fn user_create(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
     let mut tx = conn.begin().await?;
-    let now = chrono::Local::now();
 
     let row = sqlx::query_as!(
         UserPgRow,
-        "
-        INSERT INTO users (
-            created_at, updated_at, name
-        ) VALUES (
-            $1, $2, $3
-        ) RETURNING *;
-        ",
-        now,
-        now,
+        "INSERT INTO users (name) VALUES ($1) RETURNING *",
         name,
     )
     .fetch_one(&mut *tx)
