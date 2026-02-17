@@ -2,6 +2,29 @@ use sqlx::PgPool;
 
 use super::{user_row::UserPgRow, *};
 
+impl MathingUserService {
+    pub(super) async fn handle_edit(
+        &self,
+        req: Request<UserEditRequest>,
+    ) -> Result<Response<UserEditResponse>, Status> {
+        let req = req.into_inner();
+        info!("{req:?}");
+
+        let conn = DBconn::try_get().await?;
+        let (old, new) = (req.target, req.name);
+
+        let user_row = tokio::time::timeout(
+            DBconn::context(),
+            user_edit(conn, old.as_ref(), new.as_ref()),
+        )
+        .await
+        .map_err(|_| DbError::ContextError)?
+        .map(|u| Some(u.into()))?;
+
+        Ok(Response::new(UserEditResponse { user_row }))
+    }
+}
+
 async fn user_edit(conn: &PgPool, old: &str, new: &str) -> Result<UserPgRow, DbError> {
     // Check if old user name exists
     let uuid = super::user_get::user_get(conn, old).await?.uuid;

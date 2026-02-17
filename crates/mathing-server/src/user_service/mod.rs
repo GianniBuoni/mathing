@@ -53,6 +53,6 @@ impl UserService for MathingUserService {
         &self,
         req: Request<UserEditRequest>,
     ) -> Result<Response<UserEditResponse>, Status> {
-        todo!()
+        self.handle_edit(req).await
     }
 }
