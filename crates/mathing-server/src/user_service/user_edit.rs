@@ -3,7 +3,6 @@ use sqlx::PgPool;
 use super::{user_row::UserPgRow, *};
 
 async fn user_edit(conn: &PgPool, old: &str, new: &str) -> Result<UserPgRow, DbError> {
-    let mut tx = conn.begin().await?;
     // Check if old user name exists
     let uuid = super::user_get::user_get(conn, old).await?.uuid;
     // Check if new name is already taken
@@ -11,14 +10,18 @@ async fn user_edit(conn: &PgPool, old: &str, new: &str) -> Result<UserPgRow, DbE
         return Err(DbError::UniqueConstraint("users", "name"));
     }
 
-    Ok(sqlx::query_as!(
+    let mut tx = conn.begin().await?;
+    let new_row = sqlx::query_as!(
         UserPgRow,
         "UPDATE users SET name=$1, updated_at=CURRENT_TIMESTAMP WHERE uuid=$2 RETURNING *",
         new,
         uuid
     )
     .fetch_one(&mut *tx)
-    .await?)
+    .await?;
+
+    tx.commit().await?;
+    Ok(new_row)
 }
 
 #[cfg(test)]
