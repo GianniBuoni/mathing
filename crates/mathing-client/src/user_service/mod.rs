@@ -37,7 +37,7 @@ impl UserService {
         match args.action {
             CrudAction::Create => self.handle_create(args).await?,
             CrudAction::Get => self.handle_get(args).await?,
-            CrudAction::List => self.handle_list().await?,
+            CrudAction::List => self.handle_list(args).await?,
             CrudAction::Update => self.handle_edit(args).await?,
             CrudAction::Delete => self.handle_delete(args).await?,
         }
