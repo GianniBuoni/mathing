@@ -7,6 +7,7 @@ use crate::prelude::{mathing_proto::user_service_client::UserServiceClient, *};
 
 mod user_create;
 mod user_delete;
+mod user_edit;
 mod user_get;
 mod user_list;
 
@@ -35,9 +36,10 @@ impl UserService {
     pub async fn handle_command(&self, args: UserArgs) -> anyhow::Result<()> {
         match args.action {
             CrudAction::Create => self.handle_create(args).await?,
-            CrudAction::Delete => self.handle_delete(args).await?,
             CrudAction::Get => self.handle_get(args).await?,
             CrudAction::List => self.handle_list().await?,
+            CrudAction::Update => self.handle_edit(args).await?,
+            CrudAction::Delete => self.handle_delete(args).await?,
         }
         Ok(())
     }
