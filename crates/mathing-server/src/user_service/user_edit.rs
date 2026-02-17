@@ -29,7 +29,7 @@ async fn user_edit(conn: &PgPool, old: &str, new: &str) -> Result<UserPgRow, DbE
     // Check if old user name exists
     let uuid = super::user_get::user_get(conn, old).await?.uuid;
     // Check if new name is already taken
-    if let Ok(_) = super::user_get::user_get(conn, new).await {
+    if super::user_get::user_get(conn, new).await.is_ok() {
         return Err(DbError::UniqueConstraint("users", "name"));
     }
 

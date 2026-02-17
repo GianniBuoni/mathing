@@ -42,8 +42,8 @@ mod tests {
 
     use super::*;
 
-    const TARGET: &'static str = "jon";
-    const NAME: &'static str = "thing";
+    const TARGET: &str = "jon";
+    const NAME: &str = "thing";
 
     #[test]
     /// Tests that a valid cli argument results

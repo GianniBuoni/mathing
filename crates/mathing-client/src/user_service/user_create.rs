@@ -17,7 +17,7 @@ impl UserService {
                 .await?
                 .into_inner()
                 .user_row
-                .ok_or(ServerError::NoneValue("UserCreateResponse".into()))?,
+                .ok_or(ServerError::NoneValue("UserCreateResponse"))?,
         );
 
         println!("{user}");

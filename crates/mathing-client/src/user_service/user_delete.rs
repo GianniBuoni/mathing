@@ -17,7 +17,7 @@ impl UserService {
                 .await?
                 .into_inner()
                 .rows_affected
-                .ok_or(ServerError::NoneValue("UserDeleteResponse".into()))?,
+                .ok_or(ServerError::NoneValue("UserDeleteResponse"))?,
         );
 
         println!("{rows}");
