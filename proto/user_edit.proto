@@ -1,0 +1,13 @@
+syntax = "proto3";
+package mathing;
+
+import "user_row.proto";
+
+message UserEditRequest {
+  string target = 1;
+  string name = 2;
+}
+
+message UserEditResponse {
+  UserRow user_row = 1;
+}

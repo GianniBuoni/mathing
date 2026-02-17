@@ -1,4 +1,8 @@
+#[cfg(test)]
+use std::fmt::Debug;
 use std::sync::Arc;
+
+use crate::cli::CrudAction;
 
 #[derive(thiserror::Error, Debug)]
 pub enum ServerError {
@@ -8,11 +12,29 @@ pub enum ServerError {
     /// to return a Some value,
     /// but the server successfully returned a None value somehow.
     #[error("Server returned a None values for the message {0}.")]
-    NoneValue(Arc<str>),
+    NoneValue(&'static str),
 }
 
 #[derive(thiserror::Error, Debug)]
 pub enum ClientError {
+    #[error("Action invalid: function accepts {0:?}, but got {1:?}")]
+    /// For when a function expects a specific CRUD action,
+    /// but got a different one.
+    ///
+    /// Usage:
+    ///
+    /// ```
+    /// use mathing_client::prelude::CrudAction;
+    /// use mathing_client::errors::ClientError;
+    ///
+    /// let want = CrudAction::Create;
+    /// let got = CrudAction::Delete;
+    /// let err = (ClientError::CrudInvalid(want, got));
+    /// ```
+    CrudInvalid(CrudAction, CrudAction),
+    #[error(transparent)]
+    /// Newtype wrapper for a clap error
+    ClapError(#[from] clap::Error),
     #[error(
         "Configured client endpoint is missing. Please set with `SERVER_URI` enviorment variable"
     )]
@@ -34,4 +56,13 @@ pub fn clap_missing_arg(value: &str) -> clap::Error {
         clap::error::ContextValue::StyledStr(arg.into()),
     );
     err
+}
+
+#[cfg(test)]
+/// Maps an Ok(value) or Some(value) to an error.
+/// Used in tests where errors were expected,
+/// but the function somehow succeeded.
+pub fn expected_error(value: impl Debug) -> anyhow::Error {
+    let message = format!("Test expected an error, but returned: {value:?}");
+    anyhow::Error::msg(message)
 }

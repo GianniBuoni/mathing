@@ -5,10 +5,12 @@ import "user_create.proto";
 import "user_delete.proto";
 import "user_get.proto";
 import "user_list.proto";
+import "user_edit.proto";
 
 service UserService {
   rpc UserCreate (UserCreateRequest) returns (UserCreateResponse);
-  rpc UserDelete (UserDeleteRequest) returns (UserDeleteResponse);
   rpc UserGet (UserGetRequest) returns (UserGetResponse);
   rpc UserList (UserListRequest) returns (UserListResponse);
+  rpc UserEdit (UserEditRequest) returns (UserEditResponse);
+  rpc UserDelete (UserDeleteRequest) returns (UserDeleteResponse);
 }

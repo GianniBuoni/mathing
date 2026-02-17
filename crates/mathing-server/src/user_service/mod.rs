@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::prelude::{
+    mathing_proto::{UserEditRequest, UserEditResponse},
+    *,
+};
 
 pub use mathing_proto::user_service_server::{UserService, UserServiceServer};
 use mathing_proto::{
@@ -8,6 +11,7 @@ use mathing_proto::{
 
 mod user_create;
 mod user_delete;
+mod user_edit;
 mod user_get;
 mod user_list;
 mod user_row;
@@ -43,5 +47,12 @@ impl UserService for MathingUserService {
         req: Request<UserListRequest>,
     ) -> Result<Response<UserListResponse>, Status> {
         self.handle_list(req).await
+    }
+
+    async fn user_edit(
+        &self,
+        req: Request<UserEditRequest>,
+    ) -> Result<Response<UserEditResponse>, Status> {
+        self.handle_edit(req).await
     }
 }
