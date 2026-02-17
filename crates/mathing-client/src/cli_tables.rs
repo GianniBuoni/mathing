@@ -21,7 +21,7 @@ impl Default for TableStyle {
 impl From<UserRow> for Table {
     fn from(value: UserRow) -> Self {
         let mut table = Builder::with_capacity(2, 1);
-        table.push_record(["USER CREATED"]);
+        table.push_record(["USER"]);
         table.push_record([value.name]);
 
         let mut table = table.build();
@@ -36,8 +36,10 @@ impl From<UserRow> for Table {
 impl FromIterator<UserRow> for Table {
     fn from_iter<T: IntoIterator<Item = UserRow>>(iter: T) -> Self {
         let mut table = Builder::new();
-        table.push_record(["USERS"]);
-        iter.into_iter().for_each(|u| table.push_record([u.name]));
+        table.push_record(["NO.", "USERS"]);
+        iter.into_iter()
+            .enumerate()
+            .for_each(|(i, u)| table.push_record([format!("#{i}"), u.name]));
 
         let mut table = table.build();
         table
