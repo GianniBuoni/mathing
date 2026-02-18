@@ -19,7 +19,6 @@ impl MathingUserService {
             .await
             .map_err(|_| DbError::ContextError)??
             .into_iter()
-            .map(|u| u.into())
             .collect();
 
         Ok(Response::new(UserGetResponse { users }))

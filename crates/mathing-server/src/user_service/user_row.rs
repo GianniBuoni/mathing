@@ -24,6 +24,12 @@ impl From<UserPgRow> for UserRow {
     }
 }
 
+impl FromIterator<UserPgRow> for Vec<UserRow> {
+    fn from_iter<T: IntoIterator<Item = UserPgRow>>(iter: T) -> Self {
+        iter.into_iter().map(UserRow::from).collect()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::ops::Add;
