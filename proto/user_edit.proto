@@ -3,9 +3,13 @@ package mathing;
 
 import "user_row.proto";
 
+message UserEdit {
+  string target = 1;
+  string name = 2;
+}
+
 message UserEditRequest {
-  repeated string targets = 1;
-  repeated string names = 2;
+  repeated UserEdit user_edit = 1;
 }
 
 message UserEditResponse {
