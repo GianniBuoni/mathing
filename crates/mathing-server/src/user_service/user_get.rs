@@ -1,5 +1,7 @@
 use sqlx::{PgPool, Postgres};
 
+use crate::get_duplicates::get_duplicates;
+
 use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
@@ -13,7 +15,7 @@ impl MathingUserService {
         let conn = DBconn::try_get().await?;
         let names = req.names;
 
-        let users = tokio::time::timeout(DBconn::context(), user_get(conn, names))
+        let users = tokio::time::timeout(DBconn::context(), user_get(conn, names.into()))
             .await
             .map_err(|_| DbError::ContextError)??
             .into_iter()
@@ -23,12 +25,21 @@ impl MathingUserService {
         Ok(Response::new(UserGetResponse { users }))
     }
 }
-
-pub(super) async fn user_get(conn: &PgPool, names: Vec<String>) -> Result<Vec<UserPgRow>, DbError> {
+/// Calls the database to get any matching user entries.
+/// Implicity validates and returns any non-unique inputs,
+/// and errors out and returns any inputs are not found.
+pub(super) async fn user_get(
+    conn: &PgPool,
+    names: Arc<[String]>,
+) -> Result<Vec<UserPgRow>, DbError> {
+    // validate names
     if names.is_empty() {
         return Err(DbError::EmptyArgs);
     }
-
+    if let Some(found) = get_duplicates(names.clone()) {
+        return Err(DbError::UniqueConstraint("users", found));
+    }
+    // sql statement
     let mut q = sqlx::QueryBuilder::<Postgres>::new("SELECT * FROM users WHERE name IN (");
     names.iter().enumerate().for_each(|(i, n)| {
         if i == 0 {
@@ -38,16 +49,17 @@ pub(super) async fn user_get(conn: &PgPool, names: Vec<String>) -> Result<Vec<Us
         }
     });
     q.push(")");
-
     let rows: Vec<UserPgRow> = q.build_query_as().fetch_all(conn).await?;
-
+    // validate result
     if names.len() != rows.len() {
         let not_found = names
-            .into_iter()
-            .filter(|f| !rows.iter().find(|row| &row.name == f).is_some())
-            .collect::<Vec<String>>();
+            .iter()
+            .filter(|&f| !rows.iter().any(|row| &row.name == f))
+            .cloned()
+            .collect::<Vec<String>>()
+            .join(", ");
 
-        return Err(DbError::EntryNotFound("users", format!("{not_found:?}")));
+        return Err(DbError::EntryNotFound("users", not_found));
     }
     Ok(rows)
 }
@@ -71,7 +83,7 @@ mod tests {
         let names = vec!["jon".into()];
         let want = names.clone();
 
-        let got = user_get(&conn, names)
+        let got = user_get(&conn, names.into())
             .await?
             .into_iter()
             .map(|f| f.name)
@@ -82,13 +94,30 @@ mod tests {
     }
 
     #[sqlx::test(fixtures("../../fixtures/users.sql"))]
+    /// Repeated inputs will only return what is found by the database.
+    /// This can interfere with the result validation later in the function
+    /// that relies on length comparisons.
+    /// For that reason get inputs should be unique as well.
+    async fn test_repeat_get(conn: PgPool) -> anyhow::Result<()> {
+        let want = DbError::UniqueConstraint("users", "jon".into());
+        let names = vec!["jon".to_string(); 3].into();
+        let got = user_get(&conn, names).await.map(expected_error);
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic error test; expects query to fail and return the correct DB error
     async fn test_user_get_error(conn: PgPool) -> anyhow::Result<()> {
         let name = "ringo";
-        let want = DbError::EntryNotFound("users", format!("[\"{name}\"]"));
+        let want = DbError::EntryNotFound("users", name.into());
 
         let names = vec!["jon".into(), "noodle".into(), name.into()];
-        let got = user_get(&conn, names).await.map(expected_error);
+        let got = user_get(&conn, names.into()).await.map(expected_error);
 
         match got {
             Ok(e) => return Err(e),
@@ -101,7 +130,7 @@ mod tests {
     /// Sending emty arguments to the query should fail and return DbError::EmptyArg.
     async fn test_empty_error(conn: PgPool) -> anyhow::Result<()> {
         let want = DbError::EmptyArgs;
-        let got = user_get(&conn, vec![]).await.map(expected_error);
+        let got = user_get(&conn, Arc::new([])).await.map(expected_error);
 
         match got {
             Ok(e) => return Err(e),
