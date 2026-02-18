@@ -1,3 +1,6 @@
+#[cfg(test)]
+use std::fmt::Debug;
+
 use log::error;
 use thiserror::Error;
 use tonic::Status;
@@ -29,15 +32,17 @@ impl From<ServerError> for Status {
 pub enum DbError {
     #[error("DB endpoint '{0}' is offline or invalid; no conncection could be initialized.")]
     ConnectionError(String),
-    #[error("DB connection failed: context deadline exceeded.")]
+    #[error("DB connection failed: Context deadline exceeded.")]
     ContextError,
-    #[error("DB entry not found: table: {0}, value: {1}.")]
+    #[error("DB operation failed: Server expeted argements, but none were passed.")]
+    EmptyArgs,
+    #[error("DB entry not found: Table: {0}, value: {1}.")]
     EntryNotFound(&'static str, String),
     #[error("DB operation failed: {0}")]
     PgError(#[from] sqlx::Error),
-    #[error("DB operation failed: table: {0}, key: {1} must be unique.")]
+    #[error("DB operation failed: Table: {0}, key: {1} must be unique.")]
     UniqueConstraint(&'static str, &'static str),
-    #[error("Unable to parse {0} as a uuid")]
+    #[error("DB operation failed: Unable to parse {0} as a uuid")]
     Uuid(String),
 }
 
@@ -65,4 +70,10 @@ impl From<ClientError> for Status {
         error!("{value}");
         Status::invalid_argument(value.to_string())
     }
+}
+
+#[cfg(test)]
+pub fn expected_error(value: impl Debug) -> anyhow::Error {
+    let message = format!("Test expected an error but returned {value:?}");
+    anyhow::Error::msg(message)
 }
