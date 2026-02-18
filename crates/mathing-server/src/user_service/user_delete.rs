@@ -28,7 +28,7 @@ impl MathingUserService {
 
 async fn user_delete(conn: &PgPool, name: &str) -> Result<u64, DbError> {
     // check if user name exists
-    let uuid = super::user_get::user_get(conn, name).await?.uuid;
+    let uuid = super::user_get::user_get_one(conn, name).await?.uuid;
 
     let mut tx = conn.begin().await?;
     let rows = sqlx::query!("DELETE FROM users WHERE uuid=$1", uuid)

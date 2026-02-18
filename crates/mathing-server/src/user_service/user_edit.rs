@@ -27,9 +27,9 @@ impl MathingUserService {
 
 async fn user_edit(conn: &PgPool, old: &str, new: &str) -> Result<UserPgRow, DbError> {
     // Check if old user name exists
-    let uuid = super::user_get::user_get(conn, old).await?.uuid;
+    let uuid = super::user_get::user_get_one(conn, old).await?.uuid;
     // Check if new name is already taken
-    if super::user_get::user_get(conn, new).await.is_ok() {
+    if super::user_get::user_get_one(conn, new).await.is_ok() {
         return Err(DbError::UniqueConstraint("users", "name"));
     }
 
@@ -61,7 +61,7 @@ mod tests {
         let (old, new) = ("jon", "paul");
         let got = user_edit(&conn, old, new).await?;
 
-        assert_eq!(new, got.name.as_ref());
+        assert_eq!(new, got.name.as_str());
         assert_ne!(got.created_at, got.updated_at);
         Ok(())
     }

@@ -1,4 +1,4 @@
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres};
 
 use super::{user_row::UserPgRow, *};
 
@@ -7,21 +7,52 @@ impl MathingUserService {
         &self,
         req: Request<UserGetRequest>,
     ) -> Result<Response<UserGetResponse>, Status> {
-        let name = req.into_inner();
-        info!("{:?}", name);
+        let req = req.into_inner();
+        info!("{:?}", req);
 
         let conn = DBconn::try_get().await?;
+        let names = req.names;
 
-        let user = tokio::time::timeout(DBconn::context(), user_get(conn, &name.name))
+        let users = tokio::time::timeout(DBconn::context(), user_get(conn, names))
             .await
-            .map_err(|_| DbError::ContextError)?
-            .map(|u| Some(u.into()))?;
+            .map_err(|_| DbError::ContextError)??
+            .into_iter()
+            .map(|u| u.into())
+            .collect();
 
-        Ok(Response::new(UserGetResponse { user }))
+        Ok(Response::new(UserGetResponse { users }))
     }
 }
 
-pub(super) async fn user_get(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
+pub(super) async fn user_get(conn: &PgPool, names: Vec<String>) -> Result<Vec<UserPgRow>, DbError> {
+    if names.is_empty() {
+        return Err(DbError::EmptyArgs);
+    }
+
+    let mut q = sqlx::QueryBuilder::<Postgres>::new("SELECT * FROM users WHERE name IN (");
+    names.iter().enumerate().for_each(|(i, n)| {
+        if i == 0 {
+            q.push_bind(n);
+        } else {
+            q.push(", ").push_bind(n);
+        }
+    });
+    q.push(")");
+
+    let rows: Vec<UserPgRow> = q.build_query_as().fetch_all(conn).await?;
+
+    if names.len() != rows.len() {
+        let not_found = names
+            .into_iter()
+            .filter(|f| !rows.iter().find(|row| &row.name == f).is_some())
+            .collect::<Vec<String>>();
+
+        return Err(DbError::EntryNotFound("users", format!("{not_found:?}")));
+    }
+    Ok(rows)
+}
+
+pub(super) async fn user_get_one(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
     sqlx::query_as!(UserPgRow, "SELECT * FROM users WHERE name=$1", name)
         .fetch_one(conn)
         .await
@@ -30,37 +61,52 @@ pub(super) async fn user_get(conn: &PgPool, name: &str) -> Result<UserPgRow, DbE
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
+    use crate::errors::expected_error;
 
     use super::*;
 
     #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic get test; expects query to succeed and return the name inputed at the beginning of the test
     async fn test_user_get(conn: PgPool) -> anyhow::Result<()> {
-        let want: Arc<str> = "jon".into();
+        let names = vec!["jon".into()];
+        let want = names.clone();
 
-        let got = user_get(&conn, want.as_ref()).await?;
-        assert_eq!(want, got.name);
+        let got = user_get(&conn, names)
+            .await?
+            .into_iter()
+            .map(|f| f.name)
+            .collect::<Vec<String>>();
 
+        assert_eq!(want, got);
         Ok(())
     }
 
-    #[sqlx::test]
+    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic error test; expects query to fail and return the correct DB error
     async fn test_user_get_error(conn: PgPool) -> anyhow::Result<()> {
-        let name = "jon";
-        let want = DbError::EntryNotFound("users", name.into());
+        let name = "ringo";
+        let want = DbError::EntryNotFound("users", format!("[\"{name}\"]"));
 
-        let got = user_get(&conn, name).await.map(|res| {
-            let message = format!("Test query expected to fail but returned {:?}", res);
-            anyhow::Error::msg(message)
-        });
+        let names = vec!["jon".into(), "noodle".into(), name.into()];
+        let got = user_get(&conn, names).await.map(expected_error);
 
         match got {
             Ok(e) => return Err(e),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
+        Ok(())
+    }
 
+    #[sqlx::test()]
+    /// Sending emty arguments to the query should fail and return DbError::EmptyArg.
+    async fn test_empty_error(conn: PgPool) -> anyhow::Result<()> {
+        let want = DbError::EmptyArgs;
+        let got = user_get(&conn, vec![]).await.map(expected_error);
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
         Ok(())
     }
 }

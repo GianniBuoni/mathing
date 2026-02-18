@@ -5,17 +5,17 @@ use super::*;
 impl UserService {
     pub(super) async fn handle_get(&self, args: UserArgs) -> anyhow::Result<()> {
         let req = user_get(args)?;
-        let user = self
+        let users = self
             .connect()
             .await?
             .user_get(req)
             .await?
             .into_inner()
-            .user
-            .ok_or(ServerError::NoneValue("UserGetResponse"))
-            .map(Into::<tabled::Table>::into)?;
+            .users
+            .into_iter()
+            .collect::<tabled::Table>();
 
-        println!("{user}");
+        println!("{users}");
 
         Ok(())
     }
@@ -30,7 +30,7 @@ fn user_get(args: UserArgs) -> Result<UserGetRequest, ClientError> {
         .ok_or_else(|| errors::clap_missing_arg("target"))?
         .to_string();
 
-    Ok(UserGetRequest { name })
+    Ok(UserGetRequest { names: vec![name] })
 }
 
 #[cfg(test)]
@@ -45,7 +45,7 @@ mod tests {
     /// Basic user_get test
     fn test_user_get() -> anyhow::Result<()> {
         let want = UserGetRequest {
-            name: TARGET.into(),
+            names: vec![TARGET.into()],
         };
         let args = UserArgs {
             action: CrudAction::Get,

@@ -39,14 +39,12 @@ async fn user_create(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-
     use super::*;
 
     #[sqlx::test]
     async fn test_user_create(conn: PgPool) -> anyhow::Result<()> {
-        let want: Arc<str> = "jon".into();
-        let got = user_create(&conn, "jon").await?;
+        let want: String = "jon".into();
+        let got = user_create(&conn, &want).await?;
 
         assert_eq!(want, got.name);
 
