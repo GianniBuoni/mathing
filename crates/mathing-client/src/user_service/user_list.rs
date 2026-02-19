@@ -40,8 +40,8 @@ mod test {
         let want = ClientError::CrudInvalid(CrudAction::List, CrudAction::Get);
         let args = UserArgs {
             action: CrudAction::Get,
-            target: None,
-            name: None,
+            targets: vec![],
+            names: vec![],
         };
         let got = user_list(args).map(expected_error);
 

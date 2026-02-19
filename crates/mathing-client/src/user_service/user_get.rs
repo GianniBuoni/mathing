@@ -1,4 +1,4 @@
-use crate::{errors, prelude::mathing_proto::UserGetRequest};
+use crate::{errors::clap_missing_arg, prelude::mathing_proto::UserGetRequest};
 
 use super::*;
 
@@ -16,7 +16,6 @@ impl UserService {
             .collect::<tabled::Table>();
 
         println!("{users}");
-
         Ok(())
     }
 }
@@ -25,12 +24,12 @@ fn user_get(args: UserArgs) -> Result<UserGetRequest, ClientError> {
     if args.action != CrudAction::Get {
         return Err(ClientError::CrudInvalid(CrudAction::Get, args.action));
     }
-    let name = args
-        .target
-        .ok_or_else(|| errors::clap_missing_arg("target"))?
-        .to_string();
-
-    Ok(UserGetRequest { names: vec![name] })
+    if args.targets.is_empty() {
+        return Err(ClientError::ClapError(clap_missing_arg("targets")));
+    }
+    Ok(UserGetRequest {
+        names: args.targets,
+    })
 }
 
 #[cfg(test)]
@@ -39,18 +38,18 @@ mod tests {
 
     use super::*;
 
-    const TARGET: &str = "jon";
+    fn targets() -> Vec<String> {
+        vec!["jon".into()]
+    }
 
     #[test]
     /// Basic user_get test
     fn test_user_get() -> anyhow::Result<()> {
-        let want = UserGetRequest {
-            names: vec![TARGET.into()],
-        };
+        let want = UserGetRequest { names: targets() };
         let args = UserArgs {
             action: CrudAction::Get,
-            target: Some(TARGET.into()),
-            name: None,
+            targets: targets(),
+            names: vec![],
         };
         let got = user_get(args)?;
 
@@ -64,8 +63,8 @@ mod tests {
         let want = ClientError::CrudInvalid(CrudAction::Get, CrudAction::List);
         let args = UserArgs {
             action: CrudAction::List,
-            target: Some(TARGET.into()),
-            name: None,
+            targets: targets(),
+            names: vec![],
         };
         let got = user_get(args).map(expected_error);
 
@@ -80,11 +79,11 @@ mod tests {
     /// user_get should get a some value for the target.
     /// Name args should not be considered if passed to function.
     fn test_target_error() -> anyhow::Result<()> {
-        let want = ClientError::ClapError(clap_missing_arg("target"));
+        let want = ClientError::ClapError(clap_missing_arg("targets"));
         let args = UserArgs {
             action: CrudAction::Get,
-            target: None,
-            name: Some(TARGET.into()),
+            targets: vec![],
+            names: targets(),
         };
         let got = user_get(args).map(expected_error);
 

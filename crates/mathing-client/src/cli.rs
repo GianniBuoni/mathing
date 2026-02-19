@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use clap::{Args, Parser, Subcommand, ValueEnum};
 
 #[derive(Parser)]
@@ -18,10 +16,11 @@ pub enum Services {
 pub struct UserArgs {
     pub action: CrudAction,
     /// Target database entry to perform action on.
-    pub target: Option<Arc<str>>,
-    #[arg(long, short)]
+    #[arg(value_delimiter = ',')]
+    pub targets: Vec<String>,
+    #[arg(long, short, value_delimiter = ',')]
     /// Name value to pass to the 'create' and 'update' action
-    pub name: Option<Arc<str>>,
+    pub names: Vec<String>,
 }
 
 #[derive(ValueEnum, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]

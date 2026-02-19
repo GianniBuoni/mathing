@@ -43,6 +43,8 @@ pub enum ClientError {
         "Configured enviorment variable `SERVER_URI={0}` cannot be parsed as an endpoint string."
     )]
     EndpointInvalid(Arc<str>),
+    #[error("Action: {0:?} expects arguments: '{1}' to have equal lengths.")]
+    UnevenArgs(CrudAction, &'static str),
 }
 
 /// This function returns a clap fromatted error for missing required arguments.

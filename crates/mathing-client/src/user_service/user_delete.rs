@@ -1,4 +1,4 @@
-use crate::{errors, prelude::mathing_proto::UserDeleteRequest};
+use crate::{errors::clap_missing_arg, prelude::mathing_proto::UserDeleteRequest};
 
 use super::*;
 
@@ -24,12 +24,12 @@ fn user_delete(args: UserArgs) -> Result<UserDeleteRequest, ClientError> {
     if args.action != CrudAction::Delete {
         return Err(ClientError::CrudInvalid(CrudAction::Delete, args.action));
     }
-    let target = args
-        .target
-        .ok_or_else(|| errors::clap_missing_arg("target"))?
-        .to_string();
-
-    Ok(UserDeleteRequest { target })
+    if args.targets.is_empty() {
+        return Err(ClientError::ClapError(clap_missing_arg("target")));
+    }
+    Ok(UserDeleteRequest {
+        targets: args.targets,
+    })
 }
 
 #[cfg(test)]
@@ -38,32 +38,31 @@ mod tests {
 
     use super::*;
 
-    const TARGET: &str = "jon";
+    fn targets() -> Vec<String> {
+        vec!["jon".into()]
+    }
 
     #[test]
     fn test_user_delete() -> anyhow::Result<()> {
-        let want = UserDeleteRequest {
-            target: TARGET.into(),
-        };
+        let want = UserDeleteRequest { targets: targets() };
         let args = UserArgs {
             action: CrudAction::Delete,
-            target: Some(TARGET.into()),
-            name: None,
+            targets: targets(),
+            names: vec![],
         };
         let got = user_delete(args)?;
 
         assert_eq!(dbg!(want), dbg!(got));
         Ok(())
     }
-
     #[test]
     /// user_delete should only accept CrudAction::Delete
     fn test_action_error() -> anyhow::Result<()> {
         let want = ClientError::CrudInvalid(CrudAction::Delete, CrudAction::Update);
         let args = UserArgs {
             action: CrudAction::Update,
-            target: None,
-            name: None,
+            targets: vec![],
+            names: vec![],
         };
         let got = user_delete(args).map(expected_error);
 
@@ -73,16 +72,15 @@ mod tests {
         }
         Ok(())
     }
-
     #[test]
     /// user_delete should only accept target arguments,
     /// any other argument should be ignored
     fn test_arg_error() -> anyhow::Result<()> {
-        let want = ClientError::ClapError(errors::clap_missing_arg("target"));
+        let want = ClientError::ClapError(clap_missing_arg("target"));
         let args = UserArgs {
             action: CrudAction::Delete,
-            target: None,
-            name: Some(TARGET.into()),
+            targets: vec![],
+            names: targets(),
         };
         let got = user_delete(args).map(expected_error);
 
