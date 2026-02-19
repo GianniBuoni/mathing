@@ -58,13 +58,6 @@ pub(super) async fn user_get(
     Ok(rows)
 }
 
-pub(super) async fn user_get_one(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
-    sqlx::query_as!(UserPgRow, "SELECT * FROM users WHERE name=$1", name)
-        .fetch_one(conn)
-        .await
-        .map_err(|_| DbError::EntryNotFound("users", name.to_string()))
-}
-
 #[cfg(test)]
 mod tests {
     use crate::errors::expected_error;
