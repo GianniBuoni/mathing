@@ -18,21 +18,6 @@ impl Default for TableStyle {
     }
 }
 
-impl From<UserRow> for Table {
-    fn from(value: UserRow) -> Self {
-        let mut table = Builder::with_capacity(2, 1);
-        table.push_record(["USER"]);
-        table.push_record([value.name]);
-
-        let mut table = table.build();
-        table
-            .with(TableStyle::default().0)
-            .modify(FirstRow, Color::FG_BRIGHT_GREEN);
-
-        table
-    }
-}
-
 impl FromIterator<UserRow> for Table {
     fn from_iter<T: IntoIterator<Item = UserRow>>(iter: T) -> Self {
         let mut table = Builder::new();
