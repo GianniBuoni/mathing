@@ -25,8 +25,8 @@ impl MathingUserService {
     }
 }
 /// Calls the database to get any matching user entries.
-/// Implicity validates and returns any non-unique inputs,
-/// and errors out and returns any inputs are not found.
+/// Implicity validates and returns any empty or non-unique inputs,
+/// and returns any other inputs that don't exist withing an error.
 pub(super) async fn user_get(
     conn: &PgPool,
     names: Arc<[String]>,
