@@ -61,8 +61,23 @@ impl From<DbError> for Status {
 pub enum ClientError {
     /// Client successfully sent a malformed request to the server,
     /// most likely due to Optional fields set in the protobuf messages.
-    #[error("Client error: field(s) {0} not set")]
-    MissingField(&'static str),
+    #[error("Client error: server expected arguments, but none were given.")]
+    EmptyArgs,
+    /// Client is atempting to edit or delete arguments that do not exist.
+    #[error(
+        "Client error: server cannot edit or delete arguments that do not exist within the databse: Table: '{0}', value(s): '{1}'."
+    )]
+    EntryNotFound(String, String),
+    /// Client sent arguments that have repeated elements.
+    /// These can be problematic for db tables that have unique constrains.
+    #[error("Client error: server does not accept arguemnts with repeated value(s): '{0}'")]
+    RpeatedValue(String),
+    /// Client sent arguments that are already in the database.
+    /// This error should be returned if the table has unique contraints.
+    #[error(
+        "Client error: Table: '{0}' expects unique value(s), '{1}' already present in database."
+    )]
+    UniqueConstraint(String, String),
 }
 
 impl From<ClientError> for Status {
