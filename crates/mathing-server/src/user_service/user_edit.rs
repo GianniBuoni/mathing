@@ -28,7 +28,7 @@ impl MathingUserService {
 async fn user_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<Vec<UserPgRow>, DbError> {
     // validate old
     let old = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.target));
-    let _ = user_get(conn, old.clone()).await?;
+    let _ = user_get(conn, old).await?;
     // validate new
     let new = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.name));
     if let Some(found) = get_duplicates(new.clone()) {

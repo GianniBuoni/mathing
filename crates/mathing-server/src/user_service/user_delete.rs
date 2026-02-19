@@ -1,6 +1,6 @@
 use sqlx::{PgPool, Postgres};
 
-use crate::{get_duplicates::get_duplicates, prelude::mathing_proto::RowsAffected};
+use crate::prelude::mathing_proto::RowsAffected;
 
 use super::*;
 
@@ -26,9 +26,6 @@ impl MathingUserService {
 
 async fn user_delete(conn: &PgPool, names: Arc<[String]>) -> Result<u64, DbError> {
     // validate names
-    if let Some(found) = get_duplicates(names.clone()) {
-        return Err(DbError::UniqueConstraint("users", found));
-    }
     let _ = user_get::user_get(conn, names.clone()).await?;
     // sql statement
     let mut q = sqlx::QueryBuilder::<Postgres>::new("DELETE FROM users WHERE name IN ");
