@@ -1,0 +1,10 @@
+syntax = "proto3";
+package mathing;
+
+message ItemRow {
+  string uuid = 1;
+  string created_at = 2;
+  string updated_at = 3;
+  string name = 4;
+  float price = 5;
+}
