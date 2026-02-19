@@ -47,3 +47,7 @@ build package="": (test package)
     sqlx database create; \
     sqlx migrate run --source ./crates/mathing-server/migrations; \
   fi;
+
+[working-directory: "crates/mathing-server"]
+prepare:
+  cargo sqlx prepare
