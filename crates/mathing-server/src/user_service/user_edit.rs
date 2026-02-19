@@ -47,9 +47,9 @@ async fn user_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<Vec<UserPgRow
     let mut q = sqlx::QueryBuilder::<Postgres>::new(
         "UPDATE users SET name = data.new_name, updated_at = CURRENT_TIMESTAMP FROM (",
     );
-    q.push_values(reqs.iter().cloned().take(BIND_LIMIT / 2), |mut b, req| {
-        b.push_bind(req.target);
-        b.push_bind(req.name);
+    q.push_values(reqs.iter().take(BIND_LIMIT / 2), |mut b, req| {
+        b.push_bind(&req.target);
+        b.push_bind(&req.name);
     });
     q.push(") AS data(target, new_name) WHERE users.name=data.target RETURNING *");
     // transaction

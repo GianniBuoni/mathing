@@ -40,7 +40,7 @@ pub(super) async fn user_get(
     }
     // sql statement
     let mut q = sqlx::QueryBuilder::<Postgres>::new("SELECT * FROM users WHERE name IN ");
-    q.push_tuples(names.iter().cloned().take(BIND_LIMIT), |mut b, name| {
+    q.push_tuples(names.iter().take(BIND_LIMIT), |mut b, name| {
         b.push_bind(name);
     });
     let rows = q.build_query_as::<UserPgRow>().fetch_all(conn).await?;
