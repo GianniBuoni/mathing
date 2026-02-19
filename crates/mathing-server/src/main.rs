@@ -6,7 +6,7 @@ use mathing_server::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Status> {
-    mathing_server::logger::init();
+    logger_init();
     // init server config
     ServerConfig::try_init().await?;
     // init services

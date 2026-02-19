@@ -4,7 +4,7 @@ package mathing;
 import "rows_affected.proto";
 
 message UserDeleteRequest {
-  string target = 1;
+  repeated string targets = 1;
 }
 
 message UserDeleteResponse {

@@ -4,9 +4,9 @@ package mathing;
 import "user_row.proto";
 
 message UserGetRequest {
-  string name = 1;
+  repeated string names = 1;
 }
 
 message UserGetResponse {
-  UserRow user = 1;
+  repeated UserRow users = 1;
 }

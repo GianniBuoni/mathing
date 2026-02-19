@@ -1,16 +1,35 @@
 run bin="server" *args:
   cargo run -p "mathing-{{bin}}" -- {{args}}
 
-test:
-  cargo test
+[arg("package", short="p")]
+@test package="":
+  if [ "{{package}}" != "" ]; then \
+    cargo test -p "mathing-{{package}}"; \
+  else \
+    cargo test; \
+  fi
 
-lint:
-  cargo fmt --check
-  cargo clippy --all-targets -- -D warnings
+[arg("package", short="p")]
+@lint package="":
+  if [ "{{package}}" != "" ]; then \
+    cargo fmt -p "mathing-{{package}}" --check; \
+    cargo clippy \
+    -p "mathing-{{package}}" \
+    --all-targets \
+    -- -D warnings; \
+  else \
+    cargo fmt --check; \
+    cargo clippy --all-targets -- -D warnings; \
+  fi
 
 [default]
-build: test
-  cargo build
+[arg("package", short="p")]
+build package="": (test package)
+  if [ "{{package}}" != "" ]; then \
+    cargo build -p "mathing={{package}}"; \
+  else \
+    cargo build; \
+  fi
 
 @start_db:
   if [ "$(pg_ctl status | grep "is running")" ]; then \
@@ -28,3 +47,7 @@ build: test
     sqlx database create; \
     sqlx migrate run --source ./crates/mathing-server/migrations; \
   fi;
+
+[working-directory: "crates/mathing-server"]
+prepare:
+  cargo sqlx prepare

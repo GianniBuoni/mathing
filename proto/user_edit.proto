@@ -3,11 +3,15 @@ package mathing;
 
 import "user_row.proto";
 
-message UserEditRequest {
+message UserEdit {
   string target = 1;
   string name = 2;
 }
 
+message UserEditRequest {
+  repeated UserEdit user_edit = 1;
+}
+
 message UserEditResponse {
-  UserRow user_row = 1;
+  repeated UserRow users = 1;
 }

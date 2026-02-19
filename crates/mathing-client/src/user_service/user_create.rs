@@ -1,21 +1,21 @@
-use crate::{errors, prelude::mathing_proto::UserCreateRequest};
+use crate::{errors::clap_missing_arg, prelude::mathing_proto::UserCreateRequest};
 
 use super::*;
 
 impl UserService {
     pub(super) async fn handle_create(&self, args: UserArgs) -> anyhow::Result<()> {
         let req = user_create(args)?;
-        let user = Into::<tabled::Table>::into(
-            self.connect()
-                .await?
-                .user_create(req)
-                .await?
-                .into_inner()
-                .user_row
-                .ok_or(ServerError::NoneValue("UserCreateResponse"))?,
-        );
+        let table = self
+            .connect()
+            .await?
+            .user_create(req)
+            .await?
+            .into_inner()
+            .users
+            .into_iter()
+            .collect::<tabled::Table>();
 
-        println!("{user}");
+        println!("{table}");
         Ok(())
     }
 }
@@ -24,12 +24,10 @@ fn user_create(args: UserArgs) -> Result<UserCreateRequest, ClientError> {
     if args.action != CrudAction::Create {
         return Err(ClientError::CrudInvalid(CrudAction::Create, args.action));
     }
-    let name = args
-        .name
-        .ok_or_else(|| errors::clap_missing_arg("name"))?
-        .to_string();
-
-    Ok(UserCreateRequest { name })
+    if args.names.is_empty() {
+        return Err(ClientError::ClapError(clap_missing_arg("name")));
+    }
+    Ok(UserCreateRequest { names: args.names })
 }
 
 #[cfg(test)]
@@ -38,15 +36,17 @@ mod tests {
 
     use super::*;
 
-    const NAME: &str = "jon";
+    fn names() -> Vec<String> {
+        vec!["jon".into()]
+    }
 
     #[test]
     fn test_user_create() -> anyhow::Result<()> {
-        let want = UserCreateRequest { name: NAME.into() };
+        let want = UserCreateRequest { names: names() };
         let args = UserArgs {
             action: CrudAction::Create,
-            target: None,
-            name: Some(NAME.into()),
+            targets: vec![],
+            names: names(),
         };
         let got = user_create(args)?;
 
@@ -60,8 +60,8 @@ mod tests {
         let want = ClientError::CrudInvalid(CrudAction::Create, CrudAction::List);
         let args = UserArgs {
             action: CrudAction::List,
-            target: None,
-            name: None,
+            targets: vec![],
+            names: vec![],
         };
         let got = user_create(args).map(expected_error);
 
@@ -78,8 +78,8 @@ mod tests {
         let want = ClientError::ClapError(clap_missing_arg("name"));
         let args = UserArgs {
             action: CrudAction::Create,
-            target: Some(NAME.into()),
-            name: None,
+            targets: names(),
+            names: vec![],
         };
         let got = user_create(args).map(expected_error);
 

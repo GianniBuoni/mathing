@@ -1,18 +1,16 @@
-use std::sync::Arc;
-
 use chrono::{DateTime, Local};
-use sqlx::types::uuid;
+use sqlx::{prelude::FromRow, types::uuid};
 
 use crate::prelude::mathing_proto::UserRow;
 
 /// Raw PG row that needs to be converted into string data
 /// to mass to an RPC message.
-#[derive(Debug)]
+#[derive(Debug, FromRow)]
 pub struct UserPgRow {
     pub uuid: uuid::Uuid,
     pub created_at: DateTime<Local>,
     pub updated_at: DateTime<Local>,
-    pub name: Arc<str>,
+    pub name: String,
 }
 
 impl From<UserPgRow> for UserRow {
@@ -23,6 +21,12 @@ impl From<UserPgRow> for UserRow {
             updated_at: value.updated_at.to_string(),
             name: value.name.to_string(),
         }
+    }
+}
+
+impl FromIterator<UserPgRow> for Vec<UserRow> {
+    fn from_iter<T: IntoIterator<Item = UserPgRow>>(iter: T) -> Self {
+        iter.into_iter().map(UserRow::from).collect()
     }
 }
 
