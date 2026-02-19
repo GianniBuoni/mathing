@@ -39,16 +39,11 @@ pub(super) async fn user_get(
         return Err(DbError::UniqueConstraint("users", found));
     }
     // sql statement
-    let mut q = sqlx::QueryBuilder::<Postgres>::new("SELECT * FROM users WHERE name IN (");
-    names.iter().enumerate().for_each(|(i, n)| {
-        if i == 0 {
-            q.push_bind(n);
-        } else {
-            q.push(", ").push_bind(n);
-        }
+    let mut q = sqlx::QueryBuilder::<Postgres>::new("SELECT * FROM users WHERE name IN ");
+    q.push_tuples(names.iter().cloned().take(BIND_LIMIT), |mut b, name| {
+        b.push_bind(name);
     });
-    q.push(")");
-    let rows: Vec<UserPgRow> = q.build_query_as().fetch_all(conn).await?;
+    let rows = q.build_query_as::<UserPgRow>().fetch_all(conn).await?;
     // validate result
     if names.len() != rows.len() {
         let not_found = names
