@@ -1,4 +1,6 @@
-use sqlx::PgPool;
+use sqlx::{PgPool, Postgres};
+
+use crate::get_duplicates::get_duplicates;
 
 use super::{user_row::UserPgRow, *};
 
@@ -8,45 +10,60 @@ impl MathingUserService {
         req: Request<UserCreateRequest>,
     ) -> Result<Response<UserCreateResponse>, Status> {
         let req = req.into_inner();
-
         info!("{:?}", req);
+
         let conn = DBconn::try_get().await?;
+        let names = req.names.into();
 
-        let user_row = tokio::time::timeout(DBconn::context(), user_create(conn, &req.name))
+        let users = tokio::time::timeout(DBconn::context(), user_create(conn, names))
             .await
-            .map_err(|_| DbError::ContextError)?
-            .map(|u| Some(u.into()))?;
+            .map_err(|_| DbError::ContextError)??
+            .into_iter()
+            .collect();
 
-        Ok(Response::new(UserCreateResponse { user_row }))
+        Ok(Response::new(UserCreateResponse { users }))
     }
 }
 
-async fn user_create(conn: &PgPool, name: &str) -> Result<UserPgRow, DbError> {
+async fn user_create(conn: &PgPool, names: Arc<[String]>) -> Result<Vec<UserPgRow>, DbError> {
+    // validate names
+    if let Some(found) = get_duplicates(names.clone()) {
+        return Err(DbError::UniqueConstraint("users", found));
+    }
+    if let Ok(found) = user_get::user_get(conn, names.clone()).await {
+        let found = found
+            .into_iter()
+            .map(|f| f.name)
+            .collect::<Vec<String>>()
+            .join(", ");
+        return Err(DbError::UniqueConstraint("users", found));
+    }
+    // sql statement
+    let mut q = sqlx::QueryBuilder::<Postgres>::new("INSERT INTO users (name) ");
+    q.push_values(names.iter(), |mut b, name| {
+        b.push_bind(name);
+    });
+    q.push(" RETURNING *");
+    // transaction
     let mut tx = conn.begin().await?;
-
-    let row = sqlx::query_as!(
-        UserPgRow,
-        "INSERT INTO users (name) VALUES ($1) RETURNING *",
-        name,
-    )
-    .fetch_one(&mut *tx)
-    .await
-    .map_err(|_| DbError::UniqueConstraint("users", "name"))?;
-
+    let rows = q.build_query_as::<UserPgRow>().fetch_all(&mut *tx).await?;
     tx.commit().await?;
-    Ok(row)
+
+    Ok(rows)
 }
 
 #[cfg(test)]
 mod test {
+    use crate::errors::expected_error;
+
     use super::*;
 
     #[sqlx::test]
     async fn test_user_create(conn: PgPool) -> anyhow::Result<()> {
         let want: String = "jon".into();
-        let got = user_create(&conn, &want).await?;
+        let got = user_create(&conn, vec![want.clone()].into()).await?;
 
-        assert_eq!(want, got.name);
+        assert_eq!(want, got.first().unwrap().name);
 
         Ok(())
     }
@@ -56,18 +73,29 @@ mod test {
     /// and the correct error type is returned.
     async fn test_user_create_unique(conn: PgPool) -> anyhow::Result<()> {
         let name = "jon";
-        let want = DbError::UniqueConstraint("users", "name");
+        let want = DbError::UniqueConstraint("users", "jon".into());
 
-        let got = user_create(&conn, name).await.map(|u| {
-            let message = format!("Test expected an error, but returned {:?}", u);
-            anyhow::Error::msg(message)
-        });
+        let got = user_create(&conn, vec![name.into()].into())
+            .await
+            .map(expected_error);
 
         match got {
             Ok(e) => return Err(e),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
+        Ok(())
+    }
 
+    #[sqlx::test]
+    async fn test_repeated_args(conn: PgPool) -> anyhow::Result<()> {
+        let want = DbError::UniqueConstraint("users", "jon".into());
+        let names = vec!["jon".into(); 3].into();
+        let got = user_create(&conn, names).await.map(expected_error);
+
+        match got {
+            Ok(e) => return Err(e),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
         Ok(())
     }
 }
