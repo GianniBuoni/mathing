@@ -12,6 +12,7 @@ pub mod prelude {
     pub use super::db_conn::prelude::*;
     pub use super::endpoint::prelude::*;
     pub use super::errors::prelude::*;
+    pub use super::item_service::{ItemServiceServer, MathingItemService};
     pub use super::logger::logger_init;
     pub use super::user_service::{MathingUserService, UserServiceServer};
     pub use super::validation::Validation;
@@ -24,5 +25,7 @@ mod db_conn;
 mod endpoint;
 mod errors;
 mod logger;
-mod user_service;
 mod validation;
+// services
+mod item_service;
+mod user_service;

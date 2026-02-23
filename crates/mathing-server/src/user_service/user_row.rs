@@ -19,7 +19,7 @@ impl From<UserPgRow> for UserRow {
             uuid: value.uuid.into(),
             created_at: value.created_at.to_string(),
             updated_at: value.updated_at.to_string(),
-            name: value.name.to_string(),
+            name: value.name,
         }
     }
 }
