@@ -15,6 +15,21 @@ pub enum ServerError {
         "Server {0} getter called on uninitialized server configuration. Check if conifguration initialization has been called."
     )]
     ConfigError(&'static str),
+    /// Error for unsucessful type casing usually from Pg and Proto types
+    /// that can onlys implement `TryFrom`.
+    ///
+    /// Usage:
+    /// ```
+    /// use mathing_server::prelude::ServerError;
+    ///
+    /// let source = "Decimal";
+    /// let target = "f32";
+    /// let value = 1.49.to_string();
+    ///
+    /// ServerError::ConversionError(source, target, value);
+    /// ```
+    #[error("Type casting failed: Source type: '{0}', Target type: '{1}', Value: '{2}'")]
+    ConversionError(&'static str, &'static str, String),
     #[error("Required env variable {0} is missing.")]
     ConfigMissing(&'static str),
     #[error("Configured endpoint: '{0}' is invalid.")]
