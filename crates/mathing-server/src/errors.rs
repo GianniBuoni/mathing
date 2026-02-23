@@ -34,14 +34,10 @@ pub enum DbError {
     ConnectionError(String),
     #[error("DB connection failed: Context deadline exceeded.")]
     ContextError,
-    #[error("DB operation failed: Server expeted argements, but none were passed.")]
-    EmptyArgs,
-    #[error("DB entry not found: Table: '{0}', value(s): '{1}'.")]
-    EntryNotFound(&'static str, String),
+    /// Error for when the database experiences issues with a query
+    /// despite valid argument were passed to it.
     #[error("DB operation failed: {0}")]
     PgError(#[from] sqlx::Error),
-    #[error("DB operation failed: Table: '{0}', values(s): '{1}' must be unique.")]
-    UniqueConstraint(&'static str, String),
     #[error("DB operation failed: Unable to parse {0} as a uuid")]
     Uuid(String),
 }

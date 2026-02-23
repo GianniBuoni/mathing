@@ -23,7 +23,6 @@ mod config;
 mod db_conn;
 mod endpoint;
 mod errors;
-mod get_duplicates;
 mod logger;
 mod user_service;
 mod validation;
