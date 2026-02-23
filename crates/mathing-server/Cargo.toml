@@ -9,7 +9,7 @@ chrono = "0.4.43"
 env_logger = "0.11.8"
 log = "0.4.29"
 prost = {workspace = true}
-sqlx = { version = "0.8.6", features = ["chrono", "migrate", "postgres", "runtime-tokio", "uuid"] }
+sqlx = { version = "0.8.6", features = ["chrono", "migrate", "postgres", "runtime-tokio", "rust_decimal", "uuid"] }
 thiserror = {workspace = true}
 tokio = {workspace = true}
 tonic = {workspace = true}
