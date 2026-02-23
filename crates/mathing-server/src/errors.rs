@@ -34,14 +34,10 @@ pub enum DbError {
     ConnectionError(String),
     #[error("DB connection failed: Context deadline exceeded.")]
     ContextError,
-    #[error("DB operation failed: Server expeted argements, but none were passed.")]
-    EmptyArgs,
-    #[error("DB entry not found: Table: '{0}', value(s): '{1}'.")]
-    EntryNotFound(&'static str, String),
+    /// Error for when the database experiences issues with a query
+    /// despite valid argument were passed to it.
     #[error("DB operation failed: {0}")]
     PgError(#[from] sqlx::Error),
-    #[error("DB operation failed: Table: '{0}', values(s): '{1}' must be unique.")]
-    UniqueConstraint(&'static str, String),
     #[error("DB operation failed: Unable to parse {0} as a uuid")]
     Uuid(String),
 }
@@ -61,8 +57,23 @@ impl From<DbError> for Status {
 pub enum ClientError {
     /// Client successfully sent a malformed request to the server,
     /// most likely due to Optional fields set in the protobuf messages.
-    #[error("Client error: field(s) {0} not set")]
-    MissingField(&'static str),
+    #[error("Client error: server expected arguments, but none were given.")]
+    EmptyArgs,
+    /// Client is atempting to edit or delete arguments that do not exist.
+    #[error(
+        "Client error: server cannot edit or delete arguments that do not exist within the databse: Table: '{0}', value(s): '{1}'."
+    )]
+    EntryNotFound(String, String),
+    /// Client sent arguments that have repeated elements.
+    /// These can be problematic for db tables that have unique constrains.
+    #[error("Client error: server does not accept arguemnts with repeated value(s): '{0}'")]
+    RpeatedValue(String),
+    /// Client sent arguments that are already in the database.
+    /// This error should be returned if the table has unique contraints.
+    #[error(
+        "Client error: Table: '{0}' expects unique value(s), '{1}' already present in database."
+    )]
+    UniqueConstraint(String, String),
 }
 
 impl From<ClientError> for Status {

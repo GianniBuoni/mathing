@@ -82,7 +82,7 @@ mod tests {
     #[test]
     /// Tests possible cli errors returns the correct error.
     /// user_edit requires the UserArs to have the action: CrudAction::Update.
-    fn test_action_error() -> anyhow::Result<()> {
+    fn test_action_error() {
         let want = ClientError::CrudInvalid(CrudAction::Update, CrudAction::Create);
         let args = UserArgs {
             action: CrudAction::Create,
@@ -92,17 +92,16 @@ mod tests {
         let got = user_edit(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         };
-        Ok(())
     }
     #[test]
     /// Tests possible cli errors return the correct error.
     /// user_edit requires the User arg to have a target and a name,
     /// both of which are optional in the the CLI parser, but the target
     /// should be reported missing frist.
-    fn test_target_error() -> anyhow::Result<()> {
+    fn test_target_error() {
         let want = ClientError::ClapError(clap_missing_arg("targets"));
         let args = UserArgs {
             action: CrudAction::Update,
@@ -112,16 +111,15 @@ mod tests {
         let got = user_edit(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
     #[test]
     /// Tests possible cli errors return the correct error.
     /// user_edit requires the User arg to have a target and a name,
     /// both of which are optional in the the CLI parser.
-    fn test_name_error() -> anyhow::Result<()> {
+    fn test_name_error() {
         let want = ClientError::ClapError(clap_missing_arg("names"));
         let args = UserArgs {
             action: CrudAction::Update,
@@ -131,14 +129,13 @@ mod tests {
         let got = user_edit(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
     #[test]
     /// Cli can return args of unequal length
-    fn test_uneven_len() -> anyhow::Result<()> {
+    fn test_uneven_len() {
         let want = ClientError::UnevenArgs(CrudAction::Update, "targets, names");
         let args = UserArgs {
             action: CrudAction::Update,
@@ -148,9 +145,8 @@ mod tests {
         let got = user_edit(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }

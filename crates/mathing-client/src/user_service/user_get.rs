@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     /// user_get should only accept get crud actions
-    fn test_action_error() -> anyhow::Result<()> {
+    fn test_action_error() {
         let want = ClientError::CrudInvalid(CrudAction::Get, CrudAction::List);
         let args = UserArgs {
             action: CrudAction::List,
@@ -69,16 +69,15 @@ mod tests {
         let got = user_get(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 
     #[test]
     /// user_get should get a some value for the target.
     /// Name args should not be considered if passed to function.
-    fn test_target_error() -> anyhow::Result<()> {
+    fn test_target_error() {
         let want = ClientError::ClapError(clap_missing_arg("targets"));
         let args = UserArgs {
             action: CrudAction::Get,
@@ -88,9 +87,8 @@ mod tests {
         let got = user_get(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }
