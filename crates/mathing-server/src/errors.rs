@@ -61,7 +61,7 @@ pub enum ClientError {
     EmptyArgs,
     /// Client is atempting to edit or delete arguments that do not exist.
     #[error(
-        "Client error: server cannot edit or delete arguments that do not exist within the databse: Table: '{0}', value(s): '{1}'."
+        "Client error: server cannot edit or delete arguments that do not exist within the database: Table: '{0}', Value(s): '{1}'."
     )]
     EntryNotFound(String, String),
     /// Client sent arguments that have repeated elements.
@@ -71,7 +71,7 @@ pub enum ClientError {
     /// Client sent arguments that are already in the database.
     /// This error should be returned if the table has unique contraints.
     #[error(
-        "Client error: Table: '{0}' expects unique value(s), '{1}' already present in database."
+        "Client error: Table: '{0}' expects unique value(s). Arg(s) already present within database: '{1}'."
     )]
     UniqueConstraint(String, String),
 }
