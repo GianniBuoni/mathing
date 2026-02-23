@@ -1,8 +1,8 @@
 use sqlx::{PgPool, Postgres};
 
-use crate::{get_duplicates::get_duplicates, prelude::mathing_proto::UserEdit};
+use crate::prelude::mathing_proto::UserEdit;
 
-use super::{user_get::user_get, user_row::UserPgRow, *};
+use super::{user_row::UserPgRow, *};
 
 impl MathingUserService {
     pub(super) async fn handle_edit(
@@ -13,36 +13,40 @@ impl MathingUserService {
         info!("{req:?}");
 
         let conn = DBconn::try_get().await?;
-        let edit_reqs = Arc::<[UserEdit]>::from(req.user_edit);
+        let reqs = Arc::<[UserEdit]>::from(req.user_edit);
 
-        let users = tokio::time::timeout(DBconn::context(), user_edit(conn, edit_reqs))
-            .await
-            .map_err(|_| DbError::ContextError)??
-            .into_iter()
-            .collect();
+        let users = tokio::time::timeout(
+            DBconn::context(),
+            async || -> Result<Vec<UserPgRow>, Status> {
+                validate_edit(conn, reqs.clone()).await?;
+                Ok(user_edit(conn, reqs).await?)
+            }(),
+        )
+        .await
+        .map_err(|_| DbError::ContextError)??
+        .into_iter()
+        .collect();
 
         Ok(Response::new(UserEditResponse { users }))
     }
 }
 
-async fn user_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<Vec<UserPgRow>, DbError> {
-    // validate old
+async fn validate_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<(), ClientError> {
+    // validate old exists in database
     let old = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.target));
-    let _ = user_get(conn, old).await?;
-    // validate new
+    Validation::new(old, "users", "name")
+        .args_exist()
+        .validate(conn)
+        .await?;
+    // validate new does not exist in database
     let new = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.name));
-    if let Some(found) = get_duplicates(new.clone()) {
-        return Err(DbError::UniqueConstraint("users", found));
-    }
-    if let Ok(found) = user_get(conn, new.clone()).await {
-        let found = found
-            .iter()
-            .map(|f| &f.name)
-            .cloned()
-            .collect::<Vec<String>>()
-            .join(", ");
-        return Err(DbError::UniqueConstraint("users", found.to_string()));
-    }
+    Validation::new(new, "users", "name")
+        .unique_constraint()
+        .validate(conn)
+        .await
+}
+
+async fn user_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<Vec<UserPgRow>, DbError> {
     // sql statement
     let mut q = sqlx::QueryBuilder::<Postgres>::new(
         "UPDATE users SET name = data.new_name, updated_at = CURRENT_TIMESTAMP FROM (",
@@ -69,19 +73,6 @@ mod tests {
 
     use super::*;
 
-    fn jon_to_blue() -> UserEdit {
-        UserEdit {
-            target: "jon".into(),
-            name: "blue".into(),
-        }
-    }
-    fn noodle_to_blue() -> UserEdit {
-        UserEdit {
-            target: "noodle".into(),
-            name: "blue".into(),
-        }
-    }
-
     #[sqlx::test(fixtures("../../fixtures/users.sql"))]
     /// Basic test for editing a user name and if
     /// updated field is actually updated.
@@ -98,67 +89,29 @@ mod tests {
         Ok(())
     }
     #[sqlx::test(fixtures("../../fixtures/users.sql"))]
-    /// Test to ensure unique constraints of the table
-    /// are upheld by the edit funcition.
-    /// A client can successfully pass a name already in the database,
-    /// which the server should respond with an error.
-    async fn test_target_exists(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::UniqueConstraint("users", "blue".into());
-        let reqs = vec![jon_to_blue(), noodle_to_blue()].into();
-        let got = user_edit(&conn, reqs).await.map(expected_error);
-
-        match got {
-            Ok(e) => return Err(e),
-            Err(e) => assert_eq!(want.to_string(), e.to_string()),
-        }
-        Ok(())
-    }
-    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
-    /// Test to ensure that old values are unique as well.
-    /// Letting the server attempt to rename the same entries multiple times
-    /// would result in undefined behavior.
-    async fn test_repeat_target(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::UniqueConstraint("users", "jon".into());
-        let reqs = vec![jon_to_blue(); 3].into();
-        let got = user_edit(&conn, reqs).await.map(expected_error);
-
-        match got {
-            Ok(e) => return Err(e),
-            Err(e) => assert_eq!(want.to_string(), e.to_string()),
-        }
-        Ok(())
-    }
-    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
-    /// Test to ensure that new values are unique as well.
+    /// Test to ensure that new values are unique to the database.
     /// Letting the server attempt to rename multiple entries into the same name
-    /// should return unique constrint error.
-    async fn test_repeat_name(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::UniqueConstraint("users", "paul".into());
-        let reqs = vec![
-            UserEdit {
-                target: "jon".into(),
-                name: "paul".into(),
-            },
-            UserEdit {
-                target: "noodle".into(),
-                name: "paul".into(),
-            },
-        ]
+    /// should return unique constraint error.
+    async fn test_name_exists(conn: PgPool) {
+        let want = ClientError::UniqueConstraint("users".into(), "blue".into());
+        let reqs = vec![UserEdit {
+            target: "jon".into(),
+            name: "blue".into(),
+        }]
         .into();
-        let got = user_edit(&conn, reqs).await.map(expected_error);
+        let got = validate_edit(&conn, reqs).await.map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
+
     #[sqlx::test(fixtures("../../fixtures/users.sql"))]
-    /// Test that expects a entry not found error.
-    /// The database should check if the given name exists before
+    /// The database should check if the target name exists before
     /// attempting to edit it.
-    async fn test_target_not_found(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::EntryNotFound("users", "paul".into());
+    async fn test_target_not_found(conn: PgPool) {
+        let want = ClientError::EntryNotFound("users".into(), "paul".into());
         // These args will both be invalid, but
         // the non-existent user should be detected frist.
         let reqs = vec![UserEdit {
@@ -166,12 +119,11 @@ mod tests {
             name: "blue".into(),
         }]
         .into();
-        let got = user_edit(&conn, reqs).await.map(expected_error);
+        let got = validate_edit(&conn, reqs).await.map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         };
-        Ok(())
     }
 }

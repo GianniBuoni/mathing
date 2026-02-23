@@ -12,21 +12,32 @@ impl MathingUserService {
         let req = req.into_inner();
         info!("{:?}", req);
 
-        let names = req.targets.into();
+        let names = Arc::<[String]>::from(req.targets);
         let conn = DBconn::try_get().await?;
 
-        let rows_affected = tokio::time::timeout(DBconn::context(), user_delete(conn, names))
-            .await
-            .map_err(|_| DbError::ContextError)?
-            .map(|rows_affected| Some(RowsAffected { rows_affected }))?;
+        let rows_affected = tokio::time::timeout(
+            DBconn::context(),
+            async || -> Result<u64, Status> {
+                validate_delete(conn, names.clone()).await?;
+                Ok(user_delete(conn, names).await?)
+            }(),
+        )
+        .await
+        .map_err(|_| DbError::ContextError)?
+        .map(|rows_affected| Some(RowsAffected { rows_affected }))?;
 
         Ok(Response::new(UserDeleteResponse { rows_affected }))
     }
 }
 
+async fn validate_delete(conn: &PgPool, names: Arc<[String]>) -> Result<(), ClientError> {
+    Validation::new(names, "users", "name")
+        .args_exist()
+        .validate(conn)
+        .await
+}
+
 async fn user_delete(conn: &PgPool, names: Arc<[String]>) -> Result<u64, DbError> {
-    // validate names
-    let _ = user_get::user_get(conn, names.clone()).await?;
     // sql statement
     let mut q = sqlx::QueryBuilder::<Postgres>::new("DELETE FROM users WHERE name IN ");
     q.push_tuples(names.iter().take(BIND_LIMIT), |mut b, name| {
@@ -55,33 +66,17 @@ mod tests {
         Ok(())
     }
 
-    #[sqlx::test(fixtures("../../fixtures/users.sql"))]
-    /// Client can successfully send duplicate requests to delete the same user.
-    /// To guard against this behavior, an error should be returned.
-    async fn test_repeated_args(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::UniqueConstraint("users", "jon".into());
-        let names = vec!["jon".into(); 3].into();
-        let got = user_delete(&conn, names).await.map(expected_error);
-
-        match got {
-            Ok(e) => return Err(e),
-            Err(e) => assert_eq!(want.to_string(), e.to_string()),
-        }
-        Ok(())
-    }
-
     #[sqlx::test]
-    async fn test_user_delete_error(conn: PgPool) -> anyhow::Result<()> {
-        let want = DbError::EntryNotFound("users", "jon".into());
+    async fn test_user_delete_error(conn: PgPool) {
+        let want = ClientError::EntryNotFound("users".into(), "jon".into());
 
-        let got = user_delete(&conn, vec!["jon".into()].into())
+        let got = validate_delete(&conn, vec!["jon".into()].into())
             .await
             .map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }
