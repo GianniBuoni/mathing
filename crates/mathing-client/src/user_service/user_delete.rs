@@ -57,7 +57,7 @@ mod tests {
     }
     #[test]
     /// user_delete should only accept CrudAction::Delete
-    fn test_action_error() -> anyhow::Result<()> {
+    fn test_action_error() {
         let want = ClientError::CrudInvalid(CrudAction::Delete, CrudAction::Update);
         let args = UserArgs {
             action: CrudAction::Update,
@@ -67,15 +67,14 @@ mod tests {
         let got = user_delete(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
     #[test]
     /// user_delete should only accept target arguments,
     /// any other argument should be ignored
-    fn test_arg_error() -> anyhow::Result<()> {
+    fn test_arg_error() {
         let want = ClientError::ClapError(clap_missing_arg("target"));
         let args = UserArgs {
             action: CrudAction::Delete,
@@ -85,9 +84,8 @@ mod tests {
         let got = user_delete(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }

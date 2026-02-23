@@ -36,7 +36,7 @@ mod test {
     #[test]
     /// user_list should still validate if the correct action was passed to it.
     /// Any extra argument passed in should be ignored
-    fn test_action_error() -> anyhow::Result<()> {
+    fn test_action_error() {
         let want = ClientError::CrudInvalid(CrudAction::List, CrudAction::Get);
         let args = UserArgs {
             action: CrudAction::Get,
@@ -46,9 +46,8 @@ mod test {
         let got = user_list(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }

@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     /// user_cerate should only accept CrudAction::Create
-    fn test_action_error() -> anyhow::Result<()> {
+    fn test_action_error() {
         let want = ClientError::CrudInvalid(CrudAction::Create, CrudAction::List);
         let args = UserArgs {
             action: CrudAction::List,
@@ -66,15 +66,14 @@ mod tests {
         let got = user_create(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 
     #[test]
     /// user_create exepects the name arg to have a value
-    fn test_name_error() -> anyhow::Result<()> {
+    fn test_name_error() {
         let want = ClientError::ClapError(clap_missing_arg("name"));
         let args = UserArgs {
             action: CrudAction::Create,
@@ -84,9 +83,8 @@ mod tests {
         let got = user_create(args).map(expected_error);
 
         match got {
-            Ok(e) => return Err(e),
+            Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
-        Ok(())
     }
 }
