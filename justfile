@@ -26,7 +26,7 @@ run bin="server" *args:
 [arg("package", short="p")]
 build package="": (test package)
   if [ "{{package}}" != "" ]; then \
-    cargo build -p "mathing={{package}}"; \
+    cargo build -p "mathing-{{package}}"; \
   else \
     cargo build; \
   fi
