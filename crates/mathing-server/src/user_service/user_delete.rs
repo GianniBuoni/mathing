@@ -15,13 +15,10 @@ impl MathingUserService {
         let names = Arc::<[String]>::from(req.targets);
         let conn = DBconn::try_get().await?;
 
-        let rows_affected = tokio::time::timeout(
-            DBconn::context(),
-            async || -> Result<u64, Status> {
-                validate_delete(conn, names.clone()).await?;
-                Ok(user_delete(conn, names).await?)
-            }(),
-        )
+        let rows_affected = tokio::time::timeout(DBconn::context(), async {
+            validate_delete(conn, names.clone()).await?;
+            Ok::<u64, Status>(user_delete(conn, names).await?)
+        })
         .await
         .map_err(|_| DbError::ContextError)?
         .map(|rows_affected| Some(RowsAffected { rows_affected }))?;

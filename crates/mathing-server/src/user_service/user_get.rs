@@ -13,13 +13,10 @@ impl MathingUserService {
         let conn = DBconn::try_get().await?;
         let args = Arc::<[String]>::from(req.names);
 
-        let users = tokio::time::timeout(
-            DBconn::context(),
-            async || -> Result<Vec<UserPgRow>, Status> {
-                validate_get(conn, args.clone()).await?;
-                Ok(user_get(conn, args).await?)
-            }(),
-        )
+        let users = tokio::time::timeout(DBconn::context(), async {
+            validate_get(conn, args.clone()).await?;
+            Ok::<Vec<UserPgRow>, Status>(user_get(conn, args).await?)
+        })
         .await
         .map_err(|_| DbError::ContextError)??
         .into_iter()

@@ -15,13 +15,10 @@ impl MathingUserService {
         let conn = DBconn::try_get().await?;
         let reqs = Arc::<[UserEdit]>::from(req.user_edit);
 
-        let users = tokio::time::timeout(
-            DBconn::context(),
-            async || -> Result<Vec<UserPgRow>, Status> {
-                validate_edit(conn, reqs.clone()).await?;
-                Ok(user_edit(conn, reqs).await?)
-            }(),
-        )
+        let users = tokio::time::timeout(DBconn::context(), async {
+            validate_edit(conn, reqs.clone()).await?;
+            Ok::<Vec<UserPgRow>, Status>(user_edit(conn, reqs).await?)
+        })
         .await
         .map_err(|_| DbError::ContextError)??
         .into_iter()
