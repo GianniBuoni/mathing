@@ -53,8 +53,6 @@ pub enum DbError {
     /// despite valid argument were passed to it.
     #[error("DB operation failed: {0}")]
     PgError(#[from] sqlx::Error),
-    #[error("DB operation failed: Unable to parse {0} as a uuid")]
-    Uuid(String),
 }
 
 impl From<DbError> for Status {
@@ -89,6 +87,8 @@ pub enum ClientError {
         "Client error: Table: '{0}' expects unique value(s). Arg(s) already present within database: '{1}'."
     )]
     UniqueConstraint(String, String),
+    #[error("Cient error: Unable to parse '{0}' as a uuid(s)")]
+    Uuid(String),
 }
 
 impl From<ClientError> for Status {
