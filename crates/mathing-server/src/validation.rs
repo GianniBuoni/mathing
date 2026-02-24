@@ -36,7 +36,8 @@ impl Validation {
         Ok(())
     }
     async fn parse_exists(&self, conn: &PgPool) -> Result<(), ClientError> {
-        let found = self.select(conn).await.unwrap_or_default();
+        let found = self.select(conn).await;
+        let found = found.unwrap_or_default();
 
         if found.len() != self.args.len() {
             let not_found = self
@@ -96,11 +97,20 @@ impl Validation {
         q.push(" WHERE ");
         q.push(self.column.as_str());
         q.push(" IN");
-        q.push_tuples(self.args.iter().take(BIND_LIMIT), |mut b, name| {
-            b.push_bind(name);
+        q.push_tuples(self.args.iter().take(BIND_LIMIT), |mut b, col| {
+            if self.uuid {
+                b.push_bind(Uuid::parse_str(col).expect("UUID's should already been validated."));
+            } else {
+                b.push_bind(col);
+            }
         });
 
-        q.build_query_scalar::<String>().fetch_all(conn).await
+        if self.uuid {
+            let res = q.build_query_scalar::<Uuid>().fetch_all(conn).await?;
+            Ok(res.into_iter().map(|f| f.to_string()).collect())
+        } else {
+            q.build_query_scalar::<String>().fetch_all(conn).await
+        }
     }
     pub async fn validate(&self, conn: &PgPool) -> Result<(), ClientError> {
         self.parse_empty()?;
@@ -218,7 +228,7 @@ mod tests {
     }
 
     #[sqlx::test]
-    async fn test_uuid(conn: PgPool) {
+    async fn test_bad_uuid(conn: PgPool) {
         let bad_uuid = vec!["bob".to_string(), "orange".to_string()];
         let want = ClientError::Uuid(bad_uuid.join(", "));
         let got = Validation::new(bad_uuid.into(), "items", "uuid")
@@ -231,6 +241,23 @@ mod tests {
             Ok(e) => panic!("{e}"),
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
+    }
+
+    #[sqlx::test(fixtures("../fixtures/users.sql"))]
+    async fn test_valid_uuid(conn: PgPool) -> anyhow::Result<()> {
+        let args =
+            sqlx::query_scalar!("SELECT uuid FROM users WHERE name in ('jon', 'blue', 'noodle')")
+                .fetch_all(&conn)
+                .await?
+                .iter()
+                .map(|f| f.to_string())
+                .collect();
+
+        Ok(Validation::new(args, "users", "uuid")
+            .with_uuid_args()
+            .with_existant_args()
+            .validate(&conn)
+            .await?)
     }
 
     #[sqlx::test(fixtures("../fixtures/users.sql"))]
