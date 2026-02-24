@@ -23,6 +23,21 @@ pub struct UserArgs {
     pub names: Vec<String>,
 }
 
+#[derive(Args)]
+pub struct ItemArgs {
+    pub action: CrudAction,
+    #[arg(value_delimiter = ',')]
+    pub targets: Vec<String>,
+    #[arg(long, short, value_delimiter = ',')]
+    pub names: Vec<String>,
+    #[arg(long, short, value_delimiter = ',')]
+    pub prices: Vec<f32>,
+    #[arg(long, short)]
+    pub limit: usize,
+    #[arg(long, short)]
+    pub page: usize,
+}
+
 #[derive(ValueEnum, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub enum CrudAction {
     /// Creates a database entry for this entity; alias: 'add'
