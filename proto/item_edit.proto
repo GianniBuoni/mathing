@@ -1,0 +1,18 @@
+syntax = "proto3";
+package mathing;
+
+import "item_row.proto";
+
+message ItemEdit {
+  string targets = 1;
+  optional string name = 2;
+  optional float price = 3;
+}
+
+message ItemEditRequest {
+  repeated ItemEdit item_edits = 1;
+}
+
+message ItemEditResponse {
+  repeated ItemRow items = 1;
+}

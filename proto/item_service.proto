@@ -2,7 +2,15 @@ syntax = "proto3";
 package mathing;
 
 import "item_create.proto";
+import "item_get.proto";
+import "item_list.proto";
+import "item_edit.proto";
+import "item_delete.proto";
 
 service ItemService {
   rpc ItemCreate (ItemCreateRequest) returns (ItemCreateResponse);
+  rpc ItemGet (ItemGetRequest) returns (ItemGetResponse);
+  rpc ItemList (ItemListRequest) returns (ItemListResponse);
+  rpc ItemEdit (ItemEditRequest) returns (ItemEditResponse);
+  rpc ItemDelete (ItemDeleteRequest) returns (ItemDeleteResponse);
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package mathing;
+
+import "pagination.proto";
+import "item_row.proto";
+
+message ItemListRequest {
+  PaginationRequest pagination = 1;
+}
+
+message ItemListResponse {
+  repeated ItemRow items = 1;
+  PaginationResponse pagination = 2;
+}

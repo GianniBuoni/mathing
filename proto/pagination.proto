@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mathing;
+
+message PaginationRequest {
+  uint32 limit = 1;
+  uint32 page = 2;
+}
+
+message PaginationResponse {
+  uint32 total_rows = 1;
+  uint32 total_pages = 2;
+}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mathing;
+
+import "rows_affected.proto";
+
+message ItemDeleteRequest {
+  repeated string targets = 1;
+}
+
+message ItemDeleteResponse {
+  RowsAffected rows_affected = 1;
+}
