@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT uuid FROM users WHERE name in ('jon', 'blue', 'noodle')",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "uuid",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3327cc1335a05a65afe750d5c50c83ffb67308a1e605f9e74beee0a23c603313"
+}
