@@ -50,4 +50,4 @@ build package="": (test package)
 
 [working-directory: "crates/mathing-server"]
 prepare:
-  cargo sqlx prepare
+  cargo sqlx prepare -- --all-targets
