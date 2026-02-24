@@ -28,7 +28,7 @@ impl MathingUserService {
 
 async fn validate_get(conn: &PgPool, args: Arc<[String]>) -> Result<(), ClientError> {
     Validation::new(args, "users", "name")
-        .args_exist()
+        .with_existant_args()
         .validate(conn)
         .await
 }

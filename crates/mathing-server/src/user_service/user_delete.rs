@@ -29,7 +29,7 @@ impl MathingUserService {
 
 async fn validate_delete(conn: &PgPool, names: Arc<[String]>) -> Result<(), ClientError> {
     Validation::new(names, "users", "name")
-        .args_exist()
+        .with_existant_args()
         .validate(conn)
         .await
 }

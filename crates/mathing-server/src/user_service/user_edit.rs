@@ -32,13 +32,13 @@ async fn validate_edit(conn: &PgPool, reqs: Arc<[UserEdit]>) -> Result<(), Clien
     // validate old exists in database
     let old = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.target));
     Validation::new(old, "users", "name")
-        .args_exist()
+        .with_existant_args()
         .validate(conn)
         .await?;
     // validate new does not exist in database
     let new = Arc::<[String]>::from_iter(reqs.iter().cloned().map(|f| f.name));
     Validation::new(new, "users", "name")
-        .unique_constraint()
+        .with_unique_constraint()
         .validate(conn)
         .await
 }

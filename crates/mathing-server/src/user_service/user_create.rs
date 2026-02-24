@@ -28,7 +28,7 @@ impl MathingUserService {
 
 async fn validate_create(conn: &PgPool, names: Arc<[String]>) -> Result<(), ClientError> {
     Validation::new(names, "users", "name")
-        .unique_constraint()
+        .with_unique_constraint()
         .validate(conn)
         .await
 }
