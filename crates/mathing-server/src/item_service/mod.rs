@@ -1,10 +1,15 @@
 pub use crate::prelude::mathing_proto::item_service_server::ItemServiceServer;
 use crate::prelude::{
-    mathing_proto::{ItemCreateRequest, ItemCreateResponse},
+    mathing_proto::{
+        ItemCreateRequest, ItemCreateResponse, ItemDeleteRequest, ItemDeleteResponse,
+        ItemEditRequest, ItemEditResponse, ItemGetRequest, ItemGetResponse, ItemListRequest,
+        ItemListResponse,
+    },
     *,
 };
 
 mod item_create;
+mod item_delete;
 mod item_row;
 
 #[derive(Debug, Default)]
@@ -17,5 +22,29 @@ impl mathing_proto::item_service_server::ItemService for MathingItemService {
         req: Request<ItemCreateRequest>,
     ) -> Result<Response<ItemCreateResponse>, Status> {
         self.handle_create(req).await
+    }
+    async fn item_delete(
+        &self,
+        req: Request<ItemDeleteRequest>,
+    ) -> Result<Response<ItemDeleteResponse>, Status> {
+        self.handle_delete(req).await
+    }
+    async fn item_edit(
+        &self,
+        req: Request<ItemEditRequest>,
+    ) -> Result<Response<ItemEditResponse>, Status> {
+        todo!()
+    }
+    async fn item_get(
+        &self,
+        req: Request<ItemGetRequest>,
+    ) -> Result<Response<ItemGetResponse>, Status> {
+        todo!()
+    }
+    async fn item_list(
+        &self,
+        req: Request<ItemListRequest>,
+    ) -> Result<Response<ItemListResponse>, Status> {
+        todo!()
     }
 }

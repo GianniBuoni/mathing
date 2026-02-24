@@ -37,7 +37,7 @@ async fn validate_create(conn: &PgPool, args: Arc<[ItemCreate]>) -> Result<(), C
         .collect::<Arc<[String]>>();
 
     Validation::new(args, "items", "name")
-        .unique_constraint()
+        .with_unique_constraint()
         .validate(conn)
         .await
 }
