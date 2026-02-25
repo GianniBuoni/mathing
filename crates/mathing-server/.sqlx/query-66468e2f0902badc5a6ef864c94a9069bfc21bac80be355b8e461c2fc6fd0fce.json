@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM items WHERE name IN ('Apple', 'Banana', 'Cherry')",
+  "query": "SELECT * FROM items ORDER BY name LIMIT $1 OFFSET $2",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,10 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
     },
     "nullable": [
       false,
@@ -40,5 +43,5 @@
       false
     ]
   },
-  "hash": "43ce5eab6f13bd79f02ca3f83edd0494248f90895f9cbed67fc9fdf38c48553e"
+  "hash": "66468e2f0902badc5a6ef864c94a9069bfc21bac80be355b8e461c2fc6fd0fce"
 }
