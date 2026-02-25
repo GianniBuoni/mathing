@@ -63,7 +63,7 @@ impl Offset {
         self.limit * (self.page - 1)
     }
     pub fn validate(&self) -> Result<(), ClientError> {
-        if self.get_offset() > self.count {
+        if (self.page == 0) || (self.get_offset() > self.count) {
             return Err(ClientError::OutOfBounds(*self));
         }
         Ok(())
@@ -109,6 +109,22 @@ mod tests {
             Err(e) => assert_eq!(want.to_string(), e.to_string()),
         }
         Ok(())
+    }
+
+    #[test]
+    fn test_zero_out_of_range() {
+        let offset = Offset {
+            count: 43,
+            limit: 10,
+            page: 0,
+        };
+        let want = ClientError::OutOfBounds(offset);
+        let got = offset.validate().map(expected_error);
+
+        match got {
+            Ok(e) => panic!("{e}"),
+            Err(e) => assert_eq!(want.to_string(), e.to_string()),
+        }
     }
 
     #[test]
