@@ -77,6 +77,10 @@ pub enum ClientError {
         "Client error: server cannot edit or delete arguments that do not exist within the database: Table: '{0}', Value(s): '{1}'."
     )]
     EntryNotFound(String, String),
+    /// Client configured an pagination request that produces an offset
+    /// Larger than the current table row or search count.
+    #[error("Client error: {0:?} is out of bounds for the current table.")]
+    OutOfBounds(crate::offset::Offset),
     /// Client sent arguments that have repeated elements.
     /// These can be problematic for db tables that have unique constrains.
     #[error("Client error: server does not accept arguemnts with repeated value(s): '{0}'")]
@@ -87,7 +91,7 @@ pub enum ClientError {
         "Client error: Table: '{0}' expects unique value(s). Arg(s) already present within database: '{1}'."
     )]
     UniqueConstraint(String, String),
-    #[error("Cient error: Unable to parse '{0}' as a uuid(s)")]
+    #[error("Client error: Unable to parse '{0}' as a uuid(s)")]
     Uuid(String),
 }
 

@@ -25,6 +25,7 @@ mod db_conn;
 mod endpoint;
 mod errors;
 mod logger;
+mod offset;
 mod validation;
 // services
 mod item_service;
