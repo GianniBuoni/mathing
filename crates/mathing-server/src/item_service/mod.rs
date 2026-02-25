@@ -11,6 +11,7 @@ use crate::prelude::{
 mod item_create;
 mod item_delete;
 mod item_edit;
+mod item_get;
 mod item_row;
 
 #[derive(Debug, Default)]
@@ -40,7 +41,7 @@ impl mathing_proto::item_service_server::ItemService for MathingItemService {
         &self,
         req: Request<ItemGetRequest>,
     ) -> Result<Response<ItemGetResponse>, Status> {
-        todo!()
+        self.handle_get(req).await
     }
     async fn item_list(
         &self,
