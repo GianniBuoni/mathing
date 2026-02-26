@@ -147,7 +147,7 @@ mod tests {
     /// Test if client arguments are all unique/not-repeated
     async fn test_target_validation(conn: PgPool) {
         let args = Arc::<[String]>::from(vec![Uuid::nil().to_string(); 3]);
-        let want = ClientError::RpeatedValue(args.first().unwrap().clone());
+        let want = ClientError::RepeatedValue(args.first().unwrap().clone());
         let got = validate_args(&conn, args).await.map(expected_error);
 
         match got {

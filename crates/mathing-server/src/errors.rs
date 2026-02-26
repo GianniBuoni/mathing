@@ -86,7 +86,7 @@ pub enum ClientError {
     /// Client sent arguments that have repeated elements.
     /// These can be problematic for db tables that have unique constrains.
     #[error("Client error: server does not accept arguemnts with repeated value(s): '{0}'")]
-    RpeatedValue(String),
+    RepeatedValue(String),
     /// Client sent arguments that are already in the database.
     /// This error should be returned if the table has unique contraints.
     #[error(

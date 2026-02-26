@@ -62,7 +62,7 @@ impl Validation {
         });
         if !repeat.is_empty() {
             let repeat = repeat.into_iter().collect::<Vec<&str>>().join(", ");
-            return Err(ClientError::RpeatedValue(repeat));
+            return Err(ClientError::RepeatedValue(repeat));
         }
 
         Ok(())
@@ -174,8 +174,8 @@ mod tests {
         // Because HashSets do not take insert order into account,
         // Every possible permutation of repeated names should be
         // a valid error value.
-        let want = ClientError::RpeatedValue("jon, george".into());
-        let want_other = ClientError::RpeatedValue("george, jon".into());
+        let want = ClientError::RepeatedValue("jon, george".into());
+        let want_other = ClientError::RepeatedValue("george, jon".into());
 
         let mut args: Vec<String> = vec!["jon".into(); 3];
         let mut george: Vec<String> = vec!["george".into(); 2];
