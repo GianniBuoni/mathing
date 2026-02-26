@@ -5,6 +5,8 @@ use log::error;
 use thiserror::Error;
 use tonic::Status;
 
+use crate::prelude::Pagination;
+
 pub mod prelude {
     pub use super::{ClientError, DbError, ServerError};
 }
@@ -79,8 +81,8 @@ pub enum ClientError {
     EntryNotFound(String, String),
     /// Client configured an pagination request that produces an offset
     /// Larger than the current table row or search count.
-    #[error("Client error: {0:?} is out of bounds for the current table.")]
-    OutOfBounds(crate::offset::Offset),
+    #[error("Client error: {0} is out of bounds for the current table.")]
+    OutOfBounds(Pagination),
     /// Client sent arguments that have repeated elements.
     /// These can be problematic for db tables that have unique constrains.
     #[error("Client error: server does not accept arguemnts with repeated value(s): '{0}'")]
