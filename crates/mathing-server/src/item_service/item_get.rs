@@ -14,16 +14,16 @@ impl MathingItemService {
 
         let conn = DBconn::try_get().await?;
         let args = Arc::<[String]>::from(req.targets);
-        let mut offset = OffsetBuilder::from(req.pagination);
+        let mut paginaiton = PaginationBuilder::from(req.pagination);
 
-        let (rows, items) = tokio::time::timeout(DBconn::context(), async {
+        let (pagination, items) = tokio::time::timeout(DBconn::context(), async {
             validate_args(conn, args.clone()).await?;
             let count = item_count(conn, args.clone()).await?;
-            offset.with_count(count);
-            let offset = offset.try_build()?;
-            offset.validate()?;
-            let items = item_get(conn, args, offset).await?;
-            Ok::<(u32, Vec<ItemPgRow>), Status>((count, items))
+            paginaiton.with_count(count);
+            let pagination = paginaiton.try_build()?;
+            pagination.try_validate()?;
+            let items = item_get(conn, args, pagination).await?;
+            Ok::<(Pagination, Vec<ItemPgRow>), Status>((pagination, items))
         })
         .await
         .map_err(|_| DbError::ContextError)??;
@@ -35,10 +35,7 @@ impl MathingItemService {
 
         Ok(Response::new(ItemGetResponse {
             items,
-            pagination: Some(mathing_proto::PaginationResponse {
-                total_rows: rows,
-                total_pages: 0,
-            }),
+            pagination: Some(pagination.into()),
         }))
     }
 }
@@ -80,7 +77,7 @@ async fn item_count(conn: &PgPool, args: Arc<[String]>) -> Result<u32, Status> {
 async fn item_get(
     conn: &PgPool,
     args: Arc<[String]>,
-    offset: Offset,
+    page: Pagination,
 ) -> Result<Vec<ItemPgRow>, DbError> {
     // sql statement
     let mut q = QueryBuilder::<Postgres>::new("SELECT * FROM items WHERE name IN (");
@@ -96,9 +93,9 @@ async fn item_get(
             q.push(", '%')");
         });
     q.push(") ORDER BY name LIMIT ")
-        .push_bind(i64::from(offset.limit))
+        .push_bind(i64::from(page.limit))
         .push(" OFFSET ")
-        .push_bind(i64::from(offset.get_offset()));
+        .push_bind(i64::from(page.get_offset()));
     // transaction
     Ok(q.build_query_as::<ItemPgRow>().fetch_all(conn).await?)
 }
@@ -118,12 +115,12 @@ mod tests {
 
         let args = Arc::<[String]>::from(["berry".into()]);
         let count = item_count(&conn, args.clone()).await?;
-        let mut offset = OffsetBuilder::from(Some(PaginationRequest { limit: 2, page: 2 }));
-        offset.with_count(count);
-        let offset = offset.try_build()?;
-        offset.validate()?;
+        let mut pagination = PaginationBuilder::from(Some(PaginationRequest { limit: 2, page: 2 }));
+        pagination.with_count(count);
+        let pagination = pagination.try_build()?;
+        pagination.try_validate()?;
 
-        let got = item_get(&conn, args, offset).await?;
+        let got = item_get(&conn, args, pagination).await?;
 
         assert_eq!(expected_length, got.len());
         got.into_iter()

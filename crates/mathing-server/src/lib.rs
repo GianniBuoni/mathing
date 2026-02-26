@@ -14,7 +14,7 @@ pub mod prelude {
     pub use super::errors::prelude::*;
     pub use super::item_service::{ItemServiceServer, MathingItemService};
     pub use super::logger::logger_init;
-    pub(crate) use super::offset::{Offset, OffsetBuilder};
+    pub(crate) use super::pagination::{Pagination, PaginationBuilder};
     pub use super::user_service::{MathingUserService, UserServiceServer};
     pub use super::validation::Validation;
     // Logging macros
@@ -26,7 +26,7 @@ mod db_conn;
 mod endpoint;
 mod errors;
 mod logger;
-mod offset;
+mod pagination;
 mod validation;
 // services
 mod item_service;
