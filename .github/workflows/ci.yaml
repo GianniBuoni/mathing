@@ -15,7 +15,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install xz-utils
     - name: Install nix
-      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
+      uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31
     - name: Test shell environment
       run: nix develop . --command enterTest
     - name: Initialize db and migration
@@ -33,7 +33,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install xz-utils
     - name: Install nix
-      uses: cachix/install-nix-action@4e002c8ec80594ecd40e759629461e26c8abed15 # v31
+      uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31
     - name: Test shell environment
       run: nix develop .#ciLint --command enterTest
     - name: Run lint
